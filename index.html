@@ -77,7 +77,7 @@
   }
 
   .app{
-    max-width:1240px;
+    max-width:min(1720px, 96vw);
     margin:0 auto;
     display:grid;
     grid-template-columns: 322px 1fr;
@@ -485,7 +485,10 @@
 
   .content-body{
     padding:34px 40px 18px;
-    max-width:70ch;
+  }
+  .content-body:not(.is-home){
+    max-width:74ch;
+    margin-inline:auto;
   }
   .content-body p{line-height:1.7; font-size:.98rem; margin:0 0 1.2em;}
   .content-body ul, .content-body ol{line-height:1.7; font-size:.98rem; padding-left:1.3em; margin:0 0 1.2em;}
@@ -610,7 +613,8 @@
     display:flex;
     justify-content:space-between;
     gap:12px;
-    max-width:70ch;
+    max-width:74ch;
+    margin-inline:auto;
     padding:24px 40px 40px;
     margin-top:.8em;
     border-top:1px dashed var(--line);
@@ -2286,6 +2290,7 @@
     if (totalFlagged) lede += " · " + totalFlagged + " flagged for double-checking";
     if (totalNotYet) lede += " · " + totalNotYet + " not yet transcribed";
     var body = document.getElementById('content-body');
+    body.classList.add('is-home');
     body.innerHTML =
       '<div class="home-view">' +
         '<div class="home-hero">' +
@@ -2322,6 +2327,7 @@
     document.getElementById('ch-source').textContent = "Source: " + n.source;
     document.getElementById('ch-tags').innerHTML = n.tags.map(function(t){ return '<span class="tag">'+t+'</span>'; }).join("");
     var body = document.getElementById('content-body');
+    body.classList.remove('is-home');
     body.innerHTML = n.html;
     if (state.query) highlight(body, state.query);
     renderTopicNav(n);
@@ -2428,5 +2434,6 @@
 
 })();
 </script>
+
 </body>
 </html>
