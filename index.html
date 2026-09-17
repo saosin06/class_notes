@@ -1,0 +1,2432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CSM Notebook</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%90%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    color-scheme:light;
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top, 0px);}
+  body{margin:0;}
+  img{max-width:100%;}
+  [hidden]{display:none !important;}
+  :root{
+    --bg:#eef1ec;
+    --surface:#ffffff;
+    --surface-2:#f3f6f1;
+    --ink:#20242b;
+    --muted:#69716a;
+    --line:#dbe1d5;
+    --accent:#2b5f8f;
+    --accent-ink:#ffffff;
+    --accent-soft:#e1ebf4;
+    --warn:#96590f;
+    --warn-soft:#f6e9d6;
+    --shadow:0 1px 2px rgba(25,25,20,.05), 0 10px 28px -14px rgba(25,25,20,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12151a;
+      --surface:#1a1e25;
+      --surface-2:#1e232b;
+      --ink:#e8e9ee;
+      --muted:#9aa1ac;
+      --line:#2c313b;
+      --accent:#7cabe0;
+      --accent-ink:#0c1620;
+      --accent-soft:#1f2e40;
+      --warn:#e2a862;
+      --warn-soft:#392c19;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12151a;
+    --surface:#1a1e25;
+    --surface-2:#1e232b;
+    --ink:#e8e9ee;
+    --muted:#9aa1ac;
+    --line:#2c313b;
+    --accent:#7cabe0;
+    --accent-ink:#0c1620;
+    --accent-soft:#1f2e40;
+    --warn:#e2a862;
+    --warn-soft:#392c19;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    margin:0;
+    padding:0 16px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important;}
+  }
+
+  .app{
+    max-width:1240px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns: 322px 1fr;
+    gap:28px;
+    padding-block:28px 48px;
+    align-items:start;
+  }
+  @media (max-width:860px){
+    .app{grid-template-columns:1fr; padding-top:12px;}
+  }
+
+  /* ---------- Mobile topbar + drawer ---------- */
+  .topbar{
+    display:none;
+    position:sticky;
+    top:env(safe-area-inset-top, 0px);
+    z-index:50;
+    align-items:center;
+    gap:10px;
+    padding:12px 16px;
+    margin:0 -16px;
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-btn{
+    all:unset;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:34px;
+    height:34px;
+    border-radius:8px;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .topbar-btn:hover{background:var(--surface-2);}
+  .topbar-btn span{display:block; width:18px; height:2px; background:currentColor; position:relative;}
+  .topbar-btn span::before, .topbar-btn span::after{content:""; position:absolute; left:0; width:18px; height:2px; background:currentColor;}
+  .topbar-btn span::before{top:-6px;}
+  .topbar-btn span::after{top:6px;}
+  .topbar-title{
+    all:unset;
+    cursor:pointer;
+    font-family:'Source Serif 4', serif;
+    font-weight:700;
+    font-size:1.1rem;
+    color:var(--ink);
+  }
+  .drawer-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(12,14,18,.42);
+    z-index:45;
+  }
+  .drawer-overlay[hidden]{display:none;}
+
+  @media (max-width:860px){
+    .topbar{display:flex;}
+    .drawer-overlay:not([hidden]){display:block;}
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position:sticky;
+    top:28px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    max-height:calc(100vh - 56px);
+  }
+  @media (max-width:860px){
+    .sidebar{
+      position:fixed;
+      top:0;
+      left:0;
+      bottom:0;
+      width:min(86vw, 340px);
+      max-height:none;
+      border-radius:0;
+      border-top:none;
+      border-bottom:none;
+      border-left:none;
+      padding-top:calc(22px + env(safe-area-inset-top, 0px));
+      padding-bottom:calc(22px + env(safe-area-inset-bottom, 0px));
+      transform:translateX(-100%);
+      transition:transform .22s ease;
+      z-index:50;
+      overflow-y:auto;
+    }
+    .sidebar.open{transform:translateX(0);}
+    @media (prefers-reduced-motion: reduce){
+      .sidebar{transition:none;}
+    }
+  }
+  .brand-link{
+    all:unset;
+    display:block;
+    width:100%;
+    cursor:pointer;
+    border-radius:8px;
+  }
+  .brand-link:hover .brand-title{color:var(--accent);}
+  .brand-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.68rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0;
+  }
+  .brand-title{
+    font-family:'Source Serif 4', serif;
+    font-weight:700;
+    font-size:1.7rem;
+    margin:.1em 0 0;
+    text-wrap:balance;
+  }
+  .brand-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.74rem;
+    color:var(--muted);
+    margin:.35em 0 0;
+  }
+
+  .class-tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .class-tab{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:500;
+    font-size:.82rem;
+    padding:.46em .85em;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--surface-2);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .class-tab:hover{border-color:var(--accent);}
+  .class-tab.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+
+  .search-box{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    border:1px solid var(--line);
+    background:var(--surface-2);
+    border-radius:8px;
+    padding:10px 12px;
+  }
+  .search-box svg{flex:none; color:var(--muted);}
+  .search-box input{
+    border:none;
+    background:none;
+    outline:none;
+    width:100%;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:.92rem;
+    color:var(--ink);
+  }
+  .search-box input::placeholder{color:var(--muted);}
+
+  .tag-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    max-height:118px;
+    overflow-y:auto;
+    padding-right:2px;
+  }
+  .tag-chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.68rem;
+    letter-spacing:.01em;
+    padding:.4em .72em;
+    border-radius:999px;
+    background:var(--accent-soft);
+    color:var(--accent);
+    border:1px solid transparent;
+    cursor:pointer;
+    line-height:1.2;
+  }
+  .tag-chip:hover{border-color:var(--accent);}
+  .tag-chip.active{background:var(--accent); color:var(--accent-ink);}
+
+  .lecture-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    overflow-y:auto;
+    padding-right:2px;
+  }
+  .lecture-item{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:none;
+    border:1px solid transparent;
+    border-radius:8px;
+    padding:11px 13px;
+    cursor:pointer;
+    color:var(--ink);
+    font-family:inherit;
+  }
+  .lecture-item:hover{background:var(--surface-2); border-color:var(--line);}
+  .lecture-item.active{background:var(--accent-soft); border-color:var(--accent);}
+  .li-top{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    align-items:baseline;
+  }
+  .li-title{
+    font-family:'Source Serif 4', serif;
+    font-weight:600;
+    font-size:.98rem;
+  }
+  .li-date{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.66rem;
+    color:var(--accent);
+    white-space:nowrap;
+    flex:none;
+  }
+  .li-subject{
+    color:var(--muted);
+    font-size:.8rem;
+    margin-top:3px;
+    line-height:1.4;
+  }
+  .li-kind{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.6rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-top:6px;
+  }
+  .li-kind [data-kind="Resource"]{color:var(--accent); font-weight:600;}
+  .li-class{
+    color:var(--accent);
+  }
+  .li-class::after{
+    content:"·";
+    margin:0 .4em;
+    color:var(--muted);
+  }
+  .list-group-head{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.68rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:20px 0 4px;
+    padding:0 2px;
+  }
+  .list-group-head:first-child{margin-top:0;}
+  .list-topic-head{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.62rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--accent);
+    opacity:.8;
+    margin:16px 0 4px 2px;
+    padding:0 2px;
+  }
+  .list-topic-head:first-child{margin-top:0;}
+  .empty-filter{
+    color:var(--muted);
+    font-size:.85rem;
+    padding:10px 4px;
+  }
+
+  .sidebar-footer{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.66rem;
+    color:var(--muted);
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .footer-controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .theme-toggle{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.68rem;
+    letter-spacing:.02em;
+    padding:.4em .7em;
+    border-radius:7px;
+    border:1px solid var(--line);
+    background:var(--surface-2);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .theme-toggle:hover{border-color:var(--accent); color:var(--accent);}
+  .kbd-hints{display:flex; align-items:center; gap:.4em; flex-wrap:wrap;}
+  kbd{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.62rem;
+    padding:.15em .42em;
+    border-radius:4px;
+    border:1px solid var(--line);
+    background:var(--surface-2);
+    color:var(--ink);
+  }
+  @media (max-width:520px){
+    .kbd-hints{display:none;}
+  }
+
+  /* ---------- Main content ---------- */
+  .content{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    min-height:70vh;
+    overflow:hidden;
+  }
+  .content-header{
+    position:sticky;
+    top:0;
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+    padding:28px 40px 22px;
+    background-image:
+      linear-gradient(var(--surface), var(--surface)),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(43,95,143,.05) 27px, rgba(43,95,143,.05) 28px);
+  }
+  .ch-kind{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.68rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0;
+  }
+  .ch-kind[data-kind="Resource"]{
+    display:inline-block;
+    padding:.2em .6em;
+    border-radius:999px;
+    background:var(--accent-soft);
+  }
+  .ch-title{
+    font-family:'Source Serif 4', serif;
+    font-weight:700;
+    font-size:2.05rem;
+    margin:.16em 0 0;
+    text-wrap:balance;
+  }
+  .ch-lede{
+    color:var(--muted);
+    font-size:1.02rem;
+    margin:.4em 0 0;
+    max-width:62ch;
+  }
+  .ch-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    align-items:center;
+    margin-top:16px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.72rem;
+    color:var(--muted);
+  }
+  .ch-meta .ch-date{color:var(--accent);}
+  .ch-meta .ch-class{
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    font-size:.68rem;
+  }
+  .ch-meta .ch-class::after{content:"·"; margin-left:14px; color:var(--muted); font-weight:400; text-transform:none; display:inline-block;}
+  .ch-meta .ch-topic{color:var(--ink);}
+  .ch-meta .ch-topic::after{content:"·"; margin-left:14px; color:var(--muted); display:inline-block;}
+  .ch-tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+  .tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.66rem;
+    padding:.24em .58em;
+    border-radius:999px;
+    background:var(--accent-soft);
+    color:var(--accent);
+  }
+
+  .content-body{
+    padding:34px 40px 18px;
+    max-width:70ch;
+  }
+  .content-body p{line-height:1.7; font-size:.98rem; margin:0 0 1.2em;}
+  .content-body ul, .content-body ol{line-height:1.7; font-size:.98rem; padding-left:1.3em; margin:0 0 1.2em;}
+  .content-body li{margin:.3em 0;}
+  .lede{color:var(--muted); font-size:1.05rem; margin:0 0 1.4em;}
+  .muted-note{color:var(--muted); font-size:.88rem; font-style:italic;}
+
+  .review-src{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.68rem;
+    letter-spacing:.02em;
+    color:var(--muted);
+    margin:1.8em 0 .5em;
+  }
+  .review-src:first-of-type{margin-top:.4em;}
+  .review-src a{color:var(--accent); text-decoration:none;}
+  .review-src a:hover{text-decoration:underline;}
+
+  h3.date-head{
+    font-family:'IBM Plex Mono', monospace;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+    font-size:.78rem;
+    color:var(--accent);
+    margin:2.6em 0 .9em;
+    padding-top:1.7em;
+    border-top:1px dashed var(--line);
+  }
+
+  .eq{
+    font-family:'IBM Plex Mono', monospace;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:1.05em 1.3em;
+    margin:1.5em 0;
+    overflow-x:auto;
+    font-size:.95rem;
+    line-height:1.9;
+  }
+  .eq-line{white-space:nowrap;}
+
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    vertical-align:middle;
+    text-align:center;
+    margin:0 .2em;
+    line-height:1.1;
+    font-size:.94em;
+  }
+  .frac .num{padding:0 .2em .08em; border-bottom:1.3px solid currentColor;}
+  .frac .den{padding:.08em .2em 0;}
+
+  .det-wrap{
+    display:inline-block;
+    border-left:1.3px solid currentColor;
+    border-right:1.3px solid currentColor;
+    padding:0 .5em;
+    vertical-align:middle;
+    margin:0 .22em;
+  }
+  .det-wrap table{border-collapse:collapse;}
+  .det-wrap td{padding:.08em .42em; text-align:center; font-variant-numeric:tabular-nums;}
+
+  .mat-wrap{
+    display:inline-flex;
+    align-items:center;
+    vertical-align:middle;
+    margin:0 .22em;
+  }
+  .mat-wrap .bracket{
+    font-size:1.7em;
+    font-weight:300;
+    line-height:1;
+    transform:scaleY(1.3);
+  }
+  .mat-wrap table{border-collapse:collapse; margin:0 .1em;}
+  .mat-wrap td{padding:.08em .4em; text-align:center; font-variant-numeric:tabular-nums;}
+  .mat-wrap td.aug{border-left:1.3px solid currentColor;}
+
+  .callout{
+    border-left:3px solid var(--warn);
+    background:var(--warn-soft);
+    padding:.95em 1.25em;
+    border-radius:0 8px 8px 0;
+    font-size:.9rem;
+    line-height:1.6;
+    margin:1.5em 0;
+  }
+  .callout strong{color:var(--warn);}
+
+  mark.hit{
+    background:var(--accent);
+    color:var(--accent-ink);
+    border-radius:3px;
+    padding:0 .1em;
+  }
+
+  .empty-state{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:14px;
+    padding:8px 0 20px;
+  }
+  .empty-grid{
+    width:100%;
+    max-width:340px;
+    height:150px;
+    border:1.5px dashed var(--line);
+    border-radius:10px;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 17px, var(--line) 17px, var(--line) 18px),
+      repeating-linear-gradient(90deg, transparent, transparent 17px, var(--line) 17px, var(--line) 18px);
+    opacity:.6;
+  }
+  .empty-msg{font-size:1.02rem; margin:0; max-width:48ch;}
+  .empty-sub{color:var(--muted); font-size:.9rem; margin:0; max-width:48ch;}
+
+  .topic-nav{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    max-width:70ch;
+    padding:24px 40px 40px;
+    margin-top:.8em;
+    border-top:1px dashed var(--line);
+  }
+  .topic-nav[hidden]{display:none;}
+  .nav-btn{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:.82rem;
+    color:var(--ink);
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:.55em .9em;
+    cursor:pointer;
+    max-width:48%;
+    text-align:left;
+    line-height:1.35;
+  }
+  .nav-btn:hover{border-color:var(--accent); color:var(--accent);}
+  .nav-next{margin-left:auto; text-align:right;}
+
+  /* ---------- Home dashboard ---------- */
+  .home-view{max-width:none;}
+  .home-hero{max-width:62ch; margin-bottom:28px;}
+  .home-hero .ch-title{margin-top:.16em;}
+  .class-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+    gap:16px;
+  }
+  .class-card{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 20px;
+  }
+  .cc-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px;}
+  .cc-head h3{
+    font-family:'Source Serif 4', serif;
+    font-weight:700;
+    font-size:1.22rem;
+    margin:0;
+  }
+  .cc-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.78rem;
+    color:var(--accent);
+    flex:none;
+  }
+  .cc-kinds{color:var(--muted); font-size:.82rem; margin:0;}
+  .cc-tags{display:flex; flex-wrap:wrap; gap:6px;}
+  .cc-flag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.68rem;
+    color:var(--muted);
+    margin:0;
+  }
+  .cc-flag-warn{color:var(--warn);}
+  .cc-flag-resource{color:var(--accent);}
+  .cc-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:auto;
+    padding-top:6px;
+  }
+  .cc-open{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:500;
+    font-size:.82rem;
+    padding:.5em .9em;
+    border-radius:7px;
+    border:1px solid var(--accent);
+    background:var(--accent);
+    color:var(--accent-ink);
+    cursor:pointer;
+  }
+  .cc-open:hover{opacity:.9;}
+  .cc-link{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:.8rem;
+    padding:.5em .85em;
+    border-radius:7px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .cc-link:hover{border-color:var(--accent); color:var(--accent);}
+
+  ::-webkit-scrollbar{width:9px; height:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px;}
+
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+</style>
+
+<div class="topbar">
+  <button type="button" class="topbar-btn" id="drawer-toggle" aria-label="Open menu" aria-expanded="false"><span></span></button>
+  <button type="button" class="topbar-title" id="topbar-home">CSM Notebook</button>
+</div>
+<div class="drawer-overlay" id="drawer-overlay" hidden></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <button type="button" class="brand-link" id="brand-home" aria-label="Go to dashboard">
+      <p class="brand-eyebrow">Notebook</p>
+      <h1 class="brand-title">CSM Notebook</h1>
+      <p class="brand-sub">College of San Mateo · transcribed from GoodNotes</p>
+    </button>
+
+    <div id="class-tabs" class="class-tabs" aria-label="Filter by class"></div>
+
+    <label class="search-box" for="search-input">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search-input" type="text" placeholder="Search every notebook…" autocomplete="off">
+    </label>
+
+    <div id="tag-row" class="tag-row" aria-label="Filter by topic"></div>
+
+    <ul id="lecture-list" class="lecture-list"></ul>
+
+    <div class="sidebar-footer" id="sidebar-footer"></div>
+  </aside>
+
+  <main class="content">
+    <div class="content-header">
+      <p class="ch-kind" id="ch-kind"></p>
+      <h2 class="ch-title" id="ch-title"></h2>
+      <p class="ch-meta">
+        <span class="ch-class" id="ch-class"></span>
+        <span class="ch-topic" id="ch-topic"></span>
+        <span class="ch-date" id="ch-date"></span>
+        <span id="ch-source"></span>
+      </p>
+      <div class="ch-tags" id="ch-tags"></div>
+    </div>
+    <div class="content-body" id="content-body"></div>
+    <div class="topic-nav" id="topic-nav" hidden></div>
+  </main>
+
+</div>
+
+<script>
+(function(){
+
+  // ---- theme toggle (auto / light / dark), applied immediately to avoid a flash ----
+  var THEME_KEY = "csm-notebook-theme";
+  var themeMode = "auto";
+  try{ themeMode = localStorage.getItem(THEME_KEY) || "auto"; } catch(e){}
+  function applyTheme(mode){
+    if (mode === "light" || mode === "dark") document.documentElement.setAttribute('data-theme', mode);
+    else document.documentElement.removeAttribute('data-theme');
+  }
+  applyTheme(themeMode);
+
+  // Renders a bracketed matrix (optionally augmented) as inline HTML.
+  // rows: array of arrays of cell strings. aug: optional array of RHS entries, one per row.
+  function mat(rows, aug){
+    var html = '<span class="mat-wrap"><span class="bracket">[</span><table>';
+    rows.forEach(function(r, i){
+      html += '<tr>';
+      r.forEach(function(c){ html += '<td>'+c+'</td>'; });
+      if (aug) html += '<td class="aug">'+aug[i]+'</td>';
+      html += '</tr>';
+    });
+    html += '</table><span class="bracket">]</span></span>';
+    return html;
+  }
+
+  // ---- Adding a new day's notes ----
+  // Each entry needs: id (kebab-case, prefixed c3- / la- / p2-), class, kind
+  // ("Lecture" | "Reference" | "Homework"), topic (a short cluster label —
+  // reuse an existing one so it groups with related material, or add a new
+  // one), title, subject (one line, shown in the sidebar), date, source
+  // (original filename), tags (array of search keywords), and html (an array
+  // of HTML strings joined with "\n", using the .eq/.frac/.det-wrap/.mat-wrap/
+  // .callout/.muted-note conventions already in use below). Sidebar grouping
+  // follows array order, not date — insert the new entry next to the other
+  // entries that share its topic.
+
+  var notebooks = [
+
+    // ================= CALC 3 =================
+
+    {
+      id: "c3-res-3d-coords",
+      class: "Calc 3",
+      kind: "Resource",
+      topic: "3-D Space Basics",
+      title: "The 3-D Coordinate System",
+      subject: "Distance formula and the equation of a sphere — outside companion notes, not from lecture",
+      date: "Outside resource",
+      source: "Paul's Online Math Notes (Lamar University)",
+      tags: ["3-D Coordinate System","Distance Formula","Spheres"],
+      html: [
+        '<p class="lede">Foundational ℝ³ vocabulary, condensed from an outside source rather than transcribed from a lecture — useful as a quick reference before the lecture notes below assume it.</p>',
+        '<p>ℝ³ is built from three mutually perpendicular axes meeting at the origin; the three coordinate planes (xy, yz, xz) divide space into eight <strong>octants</strong>.</p>',
+        '<p><strong>Distance between two points</strong> P₁(x₁,y₁,z₁) and P₂(x₂,y₂,z₂) — the 3-D extension of the Pythagorean distance formula:</p>',
+        '<div class="eq">d = √[(x₂−x₁)<sup>2</sup> + (y₂−y₁)<sup>2</sup> + (z₂−z₁)<sup>2</sup>]</div>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Equation of a sphere</strong> with center (h,k,l) and radius r: (x−h)<sup>2</sup> + (y−k)<sup>2</sup> + (z−l)<sup>2</sup> = r<sup>2</sup>.</div>',
+        '<p><strong>Worked example:</strong> find the center and radius of x<sup>2</sup> + y<sup>2</sup> + z<sup>2</sup> − 4x + 2y − 6z + 5 = 0.</p>',
+        '<p>Complete the square in each variable:</p>',
+        '<div class="eq"><div class="eq-line">(x<sup>2</sup> − 4x) + (y<sup>2</sup> + 2y) + (z<sup>2</sup> − 6z) = −5</div><div class="eq-line">(x−2)<sup>2</sup> − 4 + (y+1)<sup>2</sup> − 1 + (z−3)<sup>2</sup> − 9 = −5</div><div class="eq-line">(x−2)<sup>2</sup> + (y+1)<sup>2</sup> + (z−3)<sup>2</sup> = 9</div></div>',
+        '<p>Center (2, −1, 3), radius √9 = <strong>3</strong>.</p>',
+        '<div class="review-src">Companion notes: <a href="https://tutorial.math.lamar.edu/Classes/CalcIII/3DCoords.aspx" target="_blank" rel="noopener">Paul\'s Online Math Notes — The 3-D Coordinate System</a></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-res-multivar-fcns",
+      class: "Calc 3",
+      kind: "Resource",
+      topic: "3-D Space Basics",
+      title: "Functions of Several Variables",
+      subject: "Domain restrictions and level curves for z = f(x,y) — outside companion notes",
+      date: "Outside resource",
+      source: "Paul's Online Math Notes (Lamar University)",
+      tags: ["Functions of Several Variables","Level Curves","Domain"],
+      html: [
+        '<p class="lede">A function of two variables f(x,y) assigns a real number to each point in a region of ℝ² (its domain); its graph z = f(x,y) is a surface in ℝ³.</p>',
+        '<p><strong>Domain restrictions</strong> to check for, same idea as single-variable calculus, applied to the whole (x,y) pair:</p>',
+        '<ul><li>Division: whatever is in a denominator can\'t equal 0.</li><li>Even roots: whatever is under the root must be ≥ 0.</li><li>Logs: whatever is inside a log must be &gt; 0.</li></ul>',
+        '<p><strong>Worked example:</strong> find the domain of f(x,y) = √(4 − x<sup>2</sup> − y<sup>2</sup>) / (x − y).</p>',
+        '<div class="eq"><div class="eq-line">4 − x<sup>2</sup> − y<sup>2</sup> ≥ 0 &nbsp;⟹&nbsp; x<sup>2</sup> + y<sup>2</sup> ≤ 4 &nbsp;(on or inside the circle of radius 2)</div><div class="eq-line">x − y ≠ 0 &nbsp;⟹&nbsp; x ≠ y &nbsp;(excludes the line y = x)</div></div>',
+        '<p>Domain: the closed disk x² + y² ≤ 4, minus the diameter where y = x.</p>',
+        '<p><strong>Level curves:</strong> the curves traced by f(x,y) = k in the xy-plane, one for each constant k — the same idea a topographic map uses for elevation. For f(x,y) = x<sup>2</sup> + y<sup>2</sup>, the level curves x<sup>2</sup> + y<sup>2</sup> = k are circles of radius √k (for k ≥ 0) — this is exactly the technique the lecture notes reach for on z = x² + y² instead of plotting points one at a time.</p>',
+        '<div class="review-src">Companion notes: <a href="https://tutorial.math.lamar.edu/Classes/CalcIII/MultiVrbleFcns.aspx" target="_blank" rel="noopener">Paul\'s Online Math Notes — Functions of Several Variables</a></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-conics",
+      class: "Calc 3",
+      kind: "Lecture",
+      topic: "Conic Sections & Polar Curves",
+      title: "Ellipses, Hyperbolas & the General Conic Equation",
+      subject: "Classifying ellipses and hyperbolas from the general second-degree equation",
+      date: "Aug 26",
+      source: "Lecture -5.pdf",
+      tags: ["Conic Sections","Ellipses","Hyperbolas","Parabolas"],
+      html: [
+        '<p class="lede">Classifying and graphing ellipses and hyperbolas from the general second-degree equation.</p>',
+
+        '<p>Standard ellipse centered at the origin:</p>',
+        '<div class="eq"><span class="frac"><span class="num">x<sup>2</sup></span><span class="den">a<sup>2</sup></span></span> + <span class="frac"><span class="num">y<sup>2</sup></span><span class="den">b<sup>2</sup></span></span> = 1</div>',
+        '<p>Shifted to center (h, k):</p>',
+        '<div class="eq"><span class="frac"><span class="num">(x − h)<sup>2</sup></span><span class="den">a<sup>2</sup></span></span> + <span class="frac"><span class="num">(y − k)<sup>2</sup></span><span class="den">b<sup>2</sup></span></span> = 1</div>',
+        '<p>Expanding that lands on the general conic form used for classification:</p>',
+        '<div class="eq">Ax<sup>2</sup> + By<sup>2</sup> + Cx + Dy + E = 0</div>',
+        '<p>where A, B, C, D, E are constants.</p>',
+
+        '<p><strong>Hyperbolas.</strong> Centered at the origin:</p>',
+        '<div class="eq">x<sup>2</sup> − y<sup>2</sup> = 1</div>',
+        '<p>General form, with asymptotes found by letting x, y → ∞ and dropping the "1":</p>',
+        '<div class="eq"><span class="frac"><span class="num">x<sup>2</sup></span><span class="den">a<sup>2</sup></span></span> − <span class="frac"><span class="num">y<sup>2</sup></span><span class="den">b<sup>2</sup></span></span> = 1&nbsp; ⟶ &nbsp;asymptotes: <span class="frac"><span class="num">x</span><span class="den">a</span></span> = ± <span class="frac"><span class="num">y</span><span class="den">b</span></span></div>',
+        '<p>Shifted to center (h, k):</p>',
+        '<div class="eq"><span class="frac"><span class="num">(x − h)<sup>2</sup></span><span class="den">a<sup>2</sup></span></span> − <span class="frac"><span class="num">(y − k)<sup>2</sup></span><span class="den">b<sup>2</sup></span></span> = 1</div>',
+
+        '<p><strong>Classifying Ax² + By² + Cx + Dy + E = 0:</strong></p>',
+        '<ol class="rules">',
+        '<li><strong>AB &gt; 0</strong> → ellipse (or the empty set, if there\'s no real solution)</li>',
+        '<li><strong>AB &lt; 0</strong> → hyperbola</li>',
+        '<li><strong>AB = 0</strong> (at least one of A, B is zero):<ul>',
+        '<li>A = 0, B ≠ 0 → parabola opening left/right</li>',
+        '<li>B = 0, A ≠ 0 → parabola opening up/down</li>',
+        '<li>A = 0 and B = 0 → a line</li>',
+        '</ul></li>',
+        '</ol>',
+        '<p class="muted-note">The sub-case labeling in the notes here is compressed to the point of being ambiguous — the logic above is the standard reading of it.</p>',
+
+        '<p><strong>Worked example — completing the square:</strong></p>',
+        '<div class="eq">x<sup>2</sup> − 3y<sup>2</sup> + 4x + 6y + 8 = 0</div>',
+        '<p>Group and complete the square in each variable:</p>',
+        '<div class="eq"><div class="eq-line">x<sup>2</sup> + 4x = (x + 2)<sup>2</sup> − 4</div><div class="eq-line">−3y<sup>2</sup> + 6y = −3(y<sup>2</sup> − 2y) = −3[(y − 1)<sup>2</sup> − 1] = −3(y − 1)<sup>2</sup> + 3</div></div>',
+        '<p>Substituting back in:</p>',
+        '<div class="eq"><div class="eq-line">(x + 2)<sup>2</sup> − 4 − 3(y − 1)<sup>2</sup> + 3 + 8 = 0</div><div class="eq-line">(x + 2)<sup>2</sup> − 3(y − 1)<sup>2</sup> = −7</div></div>',
+        '<p>Dividing by −7 to reach standard form:</p>',
+        '<div class="eq"><span class="frac"><span class="num">(y − 1)<sup>2</sup></span><span class="den">7/3</span></span> − <span class="frac"><span class="num">(x + 2)<sup>2</sup></span><span class="den">7</span></span> = 1</div>',
+        '<p>Since A = 1 &gt; 0 and B = −3 &lt; 0, AB &lt; 0 — a <strong>vertical hyperbola</strong> centered at (−2, 1), matching the sketch of the cone\'s cross-section in the notes.</p>',
+
+        '<div class="callout"><strong>Worth double-checking:</strong> right after this, the notes convert (x, y) = (−4, 4) to polar and get r ≈ 5.6, θ ≈ −1.3. r checks out (√32 ≈ 5.66), but with x &lt; 0 and y &gt; 0 the point sits in Quadrant II, so θ should land near 2.36 (3π/4) once you correct for the quadrant — looks like a bare arctan(y/x) was used without adjusting. Worth a second look against the lecture.</div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-polar-derivs",
+      class: "Calc 3",
+      kind: "Lecture",
+      topic: "Conic Sections & Polar Curves",
+      title: "Polar Curve Derivatives",
+      subject: "dy/dx and d²y/dx² along a polar curve, and graphing a hyperbola in mixed form",
+      date: "Aug 26",
+      source: "Lecture -5.pdf",
+      tags: ["Polar Curves","Hyperbolas"],
+      html: [
+        '<p class="lede">Differentiating along a polar curve, and graphing a hyperbola given in mixed polar/rectangular form.</p>',
+        '<p>1) For r = sin(2θ): (a) find dy/dx at θ = π/6, (b) find d²y/dx² at θ = π/6.</p>',
+        '<div class="eq"><span class="frac"><span class="num">dy</span><span class="den">dx</span></span> = <span class="frac"><span class="num"><span class="frac"><span class="num">dr</span><span class="den">dθ</span></span> sinθ + r cosθ</span><span class="den"><span class="frac"><span class="num">dr</span><span class="den">dθ</span></span> cosθ − r sinθ</span></span></div>',
+        '<p class="muted-note">The notes stop right after setting up to plug in θ = π/6 — the arithmetic isn\'t finished on the page.</p>',
+        '<p>2) Graph −x²/4 + y² = 1, i.e. y² − x²/4 = 1 — a <strong>vertical hyperbola</strong>.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-proj-det-cross",
+      class: "Calc 3",
+      kind: "Lecture",
+      topic: "Dot & Cross Products",
+      title: "Projections, Determinants & the Cross Product",
+      subject: "Vector projection, the 2×2/3×3 determinant shortcuts, and a worked cross product",
+      date: "Sep 2",
+      source: "Lecture -8.pdf",
+      tags: ["Dot Product","Projections","Determinants","Cross Product"],
+      html: [
+        '<p class="lede">The projection formula derived from the dot product, the determinant shortcuts, and a first worked cross product.</p>',
+
+        '<p><strong>Projection of v⃗ onto u⃗.</strong> proj<sub>u⃗</sub>(v⃗) is a vector parallel to u⃗, so it\'s some number times u⃗:</p>',
+        '<div class="eq">proj<sub>u⃗</sub> v⃗ = (number) · u⃗</div>',
+        '<p>That number is ‖v⃗‖cosθ, and since u⃗ · v⃗ = ‖u⃗‖‖v⃗‖cosθ:</p>',
+        '<div class="eq">cosθ = <span class="frac"><span class="num">u⃗ · v⃗</span><span class="den">‖u⃗‖ ‖v⃗‖</span></span> &nbsp;⟹&nbsp; proj<sub>u⃗</sub> v⃗ = <span class="frac"><span class="num">u⃗ · v⃗</span><span class="den">‖u⃗‖<sup>2</sup></span></span> u⃗</div>',
+
+        '<p><strong>2×2 determinant:</strong></p>',
+        '<div class="eq">det<span class="det-wrap"><table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table></span> = ad − bc</div>',
+
+        '<p><strong>3×3 determinant</strong> (cofactor expansion along the top row):</p>',
+        '<div class="eq"><span class="det-wrap"><table><tr><td>a</td><td>b</td><td>c</td></tr><tr><td>d</td><td>e</td><td>f</td></tr><tr><td>g</td><td>h</td><td>i</td></tr></table></span> = a<span class="det-wrap"><table><tr><td>e</td><td>f</td></tr><tr><td>h</td><td>i</td></tr></table></span> − b<span class="det-wrap"><table><tr><td>d</td><td>f</td></tr><tr><td>g</td><td>i</td></tr></table></span> + c<span class="det-wrap"><table><tr><td>d</td><td>e</td></tr><tr><td>g</td><td>h</td></tr></table></span></div>',
+
+        '<p><strong>Cross product in ℝ³.</strong> For v⃗ = ⟨v₁,v₂,v₃⟩ and w⃗ = ⟨w₁,w₂,w₃⟩:</p>',
+        '<div class="eq">v⃗ × w⃗ = <span class="det-wrap"><table><tr><td>i</td><td>j</td><td>k</td></tr><tr><td>v₁</td><td>v₂</td><td>v₃</td></tr><tr><td>w₁</td><td>w₂</td><td>w₃</td></tr></table></span></div>',
+
+        '<p><strong>Example:</strong> v⃗ = ⟨1, 0, −2⟩, w⃗ = ⟨0, −1, 3⟩</p>',
+        '<div class="eq"><div class="eq-line">v⃗ × w⃗ = i(0·3 − (−2)(−1)) − j(1·3 − (−2)(0)) + k(1·(−1) − 0·0)</div><div class="eq-line">= i(−2) − j(3) + k(−1) = ⟨−2, −3, −1⟩</div></div>',
+        '<div class="callout"><strong>Worth double-checking:</strong> the notes write the final vector as ⟨−3, −3, −1⟩, but the i-component worked out right above it is −2, not −3 — likely a slip copying the number over. ⟨−2, −3, −1⟩ is what the shown work supports.</div>',
+        '<p>The notes then start w⃗ × v⃗ (to check the sign flip against v⃗ × w⃗), but the page is cut off before it\'s finished.</p>',
+
+        '<p><strong>Magnitude:</strong> ‖v⃗ × w⃗‖ = ‖v⃗‖ ‖w⃗‖ sinθ.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-cross-product-ref",
+      class: "Calc 3",
+      kind: "Reference",
+      topic: "Dot & Cross Products",
+      title: "Cross Product",
+      subject: "Definition, the determinant shortcut, and its magnitude formula",
+      date: "Undated · early vectors unit",
+      source: "Cross_Product.pdf",
+      tags: ["Cross Product","Determinants"],
+      html: [
+        '<p class="lede">A standalone reference page on the cross product — the determinant shortcut for computing it, and its magnitude formula.</p>',
+        '<p><strong>Def:</strong> for u⃗ = ⟨u₁,u₂,u₃⟩ and v⃗ = ⟨v₁,v₂,v₃⟩:</p>',
+        '<div class="eq">u⃗ × v⃗ = <span class="det-wrap"><table><tr><td>i</td><td>j</td><td>k</td></tr><tr><td>u₁</td><td>u₂</td><td>u₃</td></tr><tr><td>v₁</td><td>v₂</td><td>v₃</td></tr></table></span></div>',
+        '<p>(built the same way as a 2×2 determinant, <span class="det-wrap"><table><tr><td>a₁</td><td>a₂</td></tr><tr><td>b₁</td><td>b₂</td></tr></table></span> = a₁b₂ − b₁a₂, just one size up)</p>',
+        '<p><strong>Example:</strong> P⃗ = ⟨−1, 2, 5⟩, Q⃗ = ⟨4, 0, −3⟩</p>',
+        '<div class="eq"><div class="eq-line">P⃗ × Q⃗ = i<span class="det-wrap"><table><tr><td>2</td><td>5</td></tr><tr><td>0</td><td>−3</td></tr></table></span> − j<span class="det-wrap"><table><tr><td>−1</td><td>5</td></tr><tr><td>4</td><td>−3</td></tr></table></span> + k<span class="det-wrap"><table><tr><td>−1</td><td>2</td></tr><tr><td>4</td><td>0</td></tr></table></span></div><div class="eq-line">= i(−6 − 0) − j(3 − 20) + k(0 − 8) = ⟨−6, 17, −8⟩</div></div>',
+        '<p><strong>Magnitude.</strong> For u⃗, v⃗ with angle θ between them:</p>',
+        '<div class="eq">‖u⃗ × v⃗‖ = ‖u⃗‖ ‖v⃗‖ sinθ</div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-line-equations-ref",
+      class: "Calc 3",
+      kind: "Reference",
+      topic: "Lines & Planes in Space",
+      title: "Equations for a Line in Space",
+      subject: "Parametric and symmetric forms for a line in ℝ³",
+      date: "Undated · early vectors unit",
+      source: "Equations_For_a_Line_In_Space.pdf",
+      tags: ["Lines in Space"],
+      html: [
+        '<p class="lede">Parametric and symmetric forms for describing a line in ℝ³.</p>',
+        '<p>If two nonzero vectors are parallel, there\'s a scalar k with u⃗ = k v⃗.</p>',
+        '<p><strong>Parametric equations:</strong> a line L parallel to v⃗ = ⟨a,b,c⟩ through the point P = (x₀,y₀,z₀):</p>',
+        '<div class="eq"><div class="eq-line">x = x₀ + ta</div><div class="eq-line">y = y₀ + tb</div><div class="eq-line">z = z₀ + tc</div></div>',
+        '<p><strong>Symmetric equations</strong> — valid when a, b, c are all nonzero:</p>',
+        '<div class="eq"><span class="frac"><span class="num">x − x₀</span><span class="den">a</span></span> = <span class="frac"><span class="num">y − y₀</span><span class="den">b</span></span> = <span class="frac"><span class="num">z − z₀</span><span class="den">c</span></span></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-lines-planes-intro",
+      class: "Calc 3",
+      kind: "Lecture",
+      topic: "Lines & Planes in Space",
+      title: "Lines & Planes: First Look",
+      subject: "The vector equation of a line through two points, and the definition of a plane's normal",
+      date: "Sep 2",
+      source: "Lecture -8.pdf",
+      tags: ["Lines in Space","Planes","Normal Vectors"],
+      html: [
+        '<p class="lede">The vector form of a line through two points, then the definition of a plane via its normal vector.</p>',
+
+        '<p><strong>Line through two points.</strong> Vector equation of the line through P₁ and P₂:</p>',
+        '<div class="eq">r⃗(t) = OP⃗₁ + t · P₁P⃗₂ &nbsp; (O = the origin)</div>',
+        '<div class="callout"><strong>Worth double-checking:</strong> the worked example (P₁ = (0,−1,−4), P₂ = (2,2,1)) computes the direction vector as P₂ − P₁ = ⟨2, 3, 5⟩, but the line written right after that reads ⟨0,−1,4⟩ + t⟨2,3,−7⟩ — neither the sign on the z-coordinate of the point nor the third component of the direction vector match the subtraction above. Worth reconciling against the lecture; ⟨0,−1,−4⟩ + t⟨2,3,5⟩ is what the arithmetic supports.</div>',
+
+        '<p><strong>Def:</strong> a vector n⃗ is normal to a plane if it\'s orthogonal to every vector in the plane.</p>',
+        '<p><strong>Problem:</strong> find the equation of a plane given a point (x₀,y₀,z₀) in it and a normal n⃗ = ⟨a,b,c⟩:</p>',
+        '<div class="eq">⟨a, b, c⟩ · ⟨x − x₀, y − y₀, z − z₀⟩ = 0</div>',
+        '<p>Find the equation of the plane through P₁ = (0,−1,−1), P₂ = (2,1,0), P₃ = (1,1,0), using n⃗ = P₁P⃗₂ × P₂P⃗₃ — set up in the notes, but the computation isn\'t carried through on the page.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-lines-planes-formal",
+      class: "Calc 3",
+      kind: "Lecture",
+      topic: "Lines & Planes in Space",
+      title: "Lines & Planes, Formalized",
+      subject: "General forms for a line and a plane, plus a plane-from-a-perpendicular-line problem",
+      date: "Sep 4",
+      source: "Lecture -8.pdf",
+      tags: ["Lines in Space","Planes","Normal Vectors"],
+      html: [
+        '<p class="lede">The general vector forms for a line and a plane, applied to a plane defined as perpendicular to a given line.</p>',
+        '<p><strong>Equation of a line:</strong> need a direction vector ⟨a,b,c⟩ and a point (x₀,y₀,z₀):</p>',
+        '<div class="eq">r⃗(t) = ⟨x₀, y₀, z₀⟩ + t⟨a, b, c⟩ &nbsp; (t is the parameter)</div>',
+        '<p><strong>Equation of a plane:</strong> need a normal n⃗ = ⟨a,b,c⟩ and a point (x₀,y₀,z₀). "ax + by + cz = d" works, but the form that shows <em>why</em> is the one built from orthogonality — the normal is orthogonal to every line in the plane:</p>',
+        '<div class="eq">⟨x − x₀, y − y₀, z − z₀⟩ · ⟨a, b, c⟩ = 0</div>',
+        '<p><strong>Problem 1:</strong> find an equation of the plane perpendicular to the line r⃗(t) = ⟨t, 2t+3, 4t+5⟩, passing through (−1, 0, 2).</p>',
+        '<p>The line\'s direction vector, ⟨1,2,4⟩, becomes the plane\'s normal:</p>',
+        '<div class="eq">1(x + 1) + 2(y − 0) + 4(z − 2) = 0</div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-res-lines",
+      class: "Calc 3",
+      kind: "Resource",
+      topic: "Lines & Planes in Space",
+      title: "Lines in Space — Intersecting, Parallel, or Skew?",
+      subject: "Testing two lines in ℝ³ against each other — a case the lecture notes don't cover yet",
+      date: "Outside resource",
+      source: "Paul's Online Math Notes (Lamar University)",
+      tags: ["Lines in Space"],
+      html: [
+        '<p class="lede">Two lines in the plane either intersect or are parallel — in ℝ³ there\'s a third option, since two lines can miss each other without ever being parallel.</p>',
+        '<p>Two lines are <strong>parallel</strong> iff their direction vectors are scalar multiples of each other. If they\'re not parallel, they either <strong>intersect</strong> (share exactly one point) or are <strong>skew</strong> (never meet, and don\'t lie in a common plane).</p>',
+        '<p><strong>Test:</strong> write each line with its own parameter (t for one, s for the other), set the two parametric forms equal component-wise, solve two of the three resulting equations for t and s, then plug into the third equation. If it\'s satisfied, the lines intersect there; if not, they\'re skew.</p>',
+        '<p><strong>Worked example:</strong> L₁: r⃗(t) = ⟨1,2,0⟩ + t⟨1,−1,2⟩ and L₂: r⃗(s) = ⟨0,3,1⟩ + s⟨2,1,−1⟩.</p>',
+        '<div class="eq"><div class="eq-line">x: 1 + t = 2s</div><div class="eq-line">y: 2 − t = 3 + s</div><div class="eq-line">z: 2t = 1 − s</div></div>',
+        '<p>From the x-equation, t = 2s − 1. Substituting into the y-equation:</p>',
+        '<div class="eq"><div class="eq-line">2 − (2s−1) = 3 + s &nbsp;⟹&nbsp; 3 − 2s = 3 + s &nbsp;⟹&nbsp; s = 0, &nbsp; t = −1</div></div>',
+        '<p>Checking the z-equation with these values: 2(−1) = 1 − 0 → −2 = 1, which is false. The system is inconsistent, so <strong>the lines are skew</strong>.</p>',
+        '<div class="review-src">Companion notes: <a href="https://tutorial.math.lamar.edu/Classes/CalcIII/EqnsOfLines.aspx" target="_blank" rel="noopener">Paul\'s Online Math Notes — Equations of Lines</a></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-res-planes",
+      class: "Calc 3",
+      kind: "Resource",
+      topic: "Lines & Planes in Space",
+      title: "Line of Intersection of Two Planes",
+      subject: "Finding where two planes meet, via the cross product of their normals — outside companion notes",
+      date: "Outside resource",
+      source: "Paul's Online Math Notes (Lamar University)",
+      tags: ["Planes","Lines in Space","Cross Product"],
+      html: [
+        '<p class="lede">Two non-parallel planes (normals that aren\'t scalar multiples of each other) always meet in a line — this is exactly the kind of computation the lecture set up with P₁P⃗₂ × P₂P⃗₃ but didn\'t carry through.</p>',
+        '<p>The intersection line\'s direction vector has to be perpendicular to both normals — so it\'s their cross product: v⃗ = n⃗₁ × n⃗₂. A point on the line comes from solving the two plane equations together (fixing one variable, usually z = 0, and solving the resulting 2×2 system for the other two).</p>',
+        '<p><strong>Worked example:</strong> Plane 1: x + y − z = 1 (n⃗₁ = ⟨1,1,−1⟩). Plane 2: 2x − y + z = 4 (n⃗₂ = ⟨2,−1,1⟩).</p>',
+        '<div class="eq">v⃗ = n⃗₁ × n⃗₂ = i(1·1 − (−1)(−1)) − j(1·1 − (−1)·2) + k(1·(−1) − 1·2) = ⟨0, −3, −3⟩</div>',
+        '<p>Simplify the direction to ⟨0, 1, 1⟩. For a point, set z = 0:</p>',
+        '<div class="eq"><div class="eq-line">x + y = 1</div><div class="eq-line">2x − y = 4</div><div class="eq-line">—————</div><div class="eq-line">3x = 5 &nbsp;⟹&nbsp; x = 5/3, &nbsp; y = 1 − 5/3 = −2/3</div></div>',
+        '<div class="eq">r⃗(t) = ⟨5/3, −2/3, 0⟩ + t⟨0, 1, 1⟩</div>',
+        '<div class="review-src">Companion notes: <a href="https://tutorial.math.lamar.edu/Classes/CalcIII/EqnsOfPlanes.aspx" target="_blank" rel="noopener">Paul\'s Online Math Notes — Equations of Planes</a></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-quadric-surfaces",
+      class: "Calc 3",
+      kind: "Lecture",
+      topic: "Quadric Surfaces & Coordinate Systems",
+      title: "Quadric Surfaces & Level Curves",
+      subject: "Cylinders and spheres as ℝ³ generalizations of conics, and graphing by level curves",
+      date: "Sep 9",
+      source: "Lecture -8.pdf",
+      tags: ["Quadric Surfaces","Level Curves"],
+      html: [
+        '<p class="lede">Generalizing conic sections to ℝ³, and the level-curve technique for graphing a surface.</p>',
+        '<p>x² + y² = 1 is a circle in ℝ², but a <strong>cylinder</strong> in ℝ³ (running straight up the z-axis).</p>',
+        '<p><strong>Def:</strong> the set of lines parallel to a given line, passing through a given curve, is a <em>cylinder</em>.</p>',
+        '<p>Example: y = x² swept along the z-axis (a parabolic cylinder).</p>',
+        '<p><strong>Generalizing conic sections to ℝ³:</strong> x² + y² + z² = 1 is a <strong>sphere</strong>.</p>',
+        '<p><strong>Graphing z = x² + y².</strong> Plotting points one at a time is, in the notes\' own words, "a terrible strategy" — instead, use <strong>level curves</strong>: the curves you get by holding z constant.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-dimensions",
+      class: "Calc 3",
+      kind: "Lecture",
+      topic: "Quadric Surfaces & Coordinate Systems",
+      title: "Planes as Surfaces & Counting Dimensions",
+      subject: "Why a surface's dimension equals its number of free parameters",
+      date: "Sep 11",
+      source: "Lecture -8.pdf",
+      tags: ["Planes","Parametrization"],
+      html: [
+        '<p class="lede">Reading a plane as a parametrized 2-D surface, and the general rule for counting a surface\'s dimension.</p>',
+        '<p>x + 3y − z = 8, thinking of x and y as the free variables.</p>',
+        '<p>A plane is a 2-D surface — literally something you could make out of a flat sheet of paper. General rule: <strong>how many dimensions a surface has corresponds to how many independent (free) variables describe it.</strong> A plane can be parametrized, but it takes 2 parameters.</p>',
+        '<p>A <strong>curve</strong> is 1-dimensional — it only needs 1 free variable:</p>',
+        '<div class="eq">r⃗(t) = ⟨x(t), y(t), z(t)⟩</div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-cyl-spherical",
+      class: "Calc 3",
+      kind: "Lecture",
+      topic: "Quadric Surfaces & Coordinate Systems",
+      title: "Cylindrical & Spherical Coordinates",
+      subject: "Converting between rectangular, cylindrical, and spherical coordinates",
+      date: "Sep 14",
+      source: "Lecture -8.pdf",
+      tags: ["Cylindrical Coordinates","Spherical Coordinates"],
+      html: [
+        '<p class="lede">The two ℝ³ coordinate systems built on top of polar coordinates, with worked conversions each way.</p>',
+        '<div class="eq"><div class="eq-line">ℝ²: (x, y) rectangular &nbsp;|&nbsp; (r, θ) polar</div><div class="eq-line">ℝ³: (x, y, z) rectangular &nbsp;|&nbsp; (r, θ, z) cylindrical &nbsp;|&nbsp; (ρ, θ, φ) spherical</div></div>',
+
+        '<p><strong>Cylindrical coordinates</strong> — polar in the xy-plane, z carried straight through:</p>',
+        '<div class="eq"><div class="eq-line">x = r cosθ</div><div class="eq-line">y = r sinθ</div><div class="eq-line">z = z</div><div class="eq-line">r<sup>2</sup> = x<sup>2</sup> + y<sup>2</sup> &nbsp;&nbsp; tanθ = y/x</div></div>',
+        '<p><strong>Example:</strong> convert (x,y,z) = (−1, √3, 2) to cylindrical.</p>',
+        '<div class="eq"><div class="eq-line">r<sup>2</sup> = x<sup>2</sup> + y<sup>2</sup> = 1 + 3 = 4 &nbsp;⟹&nbsp; r = 2</div><div class="eq-line">tanθ = √3 / (−1). A bare arctan gives tan<sup>−1</sup>(√3) = −π/3, but (x,y) sits in Quadrant II, so add π:</div><div class="eq-line">θ = −π/3 + π = 2π/3</div></div>',
+        '<div class="eq">(r, θ, z) = (2, 2π/3, 2)</div>',
+        '<p><strong>Graphs:</strong> r = 1 is a cylinder; θ = π/4 (r ≥ 0) is a half-plane.</p>',
+
+        '<p><strong>Spherical coordinates:</strong></p>',
+        '<ul><li>ρ = distance from the origin (0,0,0)</li><li>θ = same θ as in cylindrical</li><li>φ = angle measured from the positive z-axis</li></ul>',
+        '<p><strong>Uniqueness of representation:</strong> in polar (ℝ²), every point except the origin has one representation once you require r ≥ 0 and 0 ≤ θ ≤ 2π. In spherical: ρ = 1 is a sphere, θ = π/3 is a half-plane, φ = π/4 is a half-cone.</p>',
+
+        '<h3 class="date-head">Spherical ⟷ Rectangular</h3>',
+        '<div class="eq"><div class="eq-line">ρ = √(x<sup>2</sup> + y<sup>2</sup> + z<sup>2</sup>)</div><div class="eq-line">φ = arccos( z / √(x<sup>2</sup> + y<sup>2</sup> + z<sup>2</sup>) )</div><div class="eq-line">θ = arctan(y / x)</div></div>',
+        '<div class="callout"><strong>Worth double-checking:</strong> on the page, this pair of formulas is labeled with θ next to the arccos expression and φ next to the arctan expression — the reverse of the definitions just above (θ = same as cylindrical, φ = angle from the z-axis). The arccos-of-z expression matches "angle from the z-axis," so it reads as φ here; arctan(y/x) reads as θ. Worth confirming against the textbook\'s convention.</div>',
+        '<div class="eq"><div class="eq-line">x = ρ sinφ cosθ</div><div class="eq-line">y = ρ sinφ sinθ</div><div class="eq-line">z = ρ cosφ</div></div>',
+        '<p><strong>Example:</strong> (ρ, θ, φ) = (2, π/2, π/2) → rectangular:</p>',
+        '<div class="eq"><div class="eq-line">x = 2 sin(π/2)cos(π/2) = 2 · 1 · 0 = 0</div><div class="eq-line">y = 2 sin(π/2)sin(π/2) = 2 · 1 · 1 = 2</div><div class="eq-line">z = 2 cos(π/2) = 0</div></div>',
+        '<div class="eq">(x, y, z) = (0, 2, 0)</div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-res-quadric-types",
+      class: "Calc 3",
+      kind: "Resource",
+      topic: "Quadric Surfaces & Coordinate Systems",
+      title: "The Six Standard Quadric Surfaces",
+      subject: "A reference table of quadric surface types and how to identify them — outside companion notes",
+      date: "Outside resource",
+      source: "Paul's Online Math Notes (Lamar University)",
+      tags: ["Quadric Surfaces"],
+      html: [
+        '<p class="lede">Every quadric surface (a 2nd-degree equation in x, y, z) is one of six standard shapes — condensed here as a lookup table rather than reproduced verbatim from the source.</p>',
+        '<ul>' +
+          '<li><strong>Ellipsoid:</strong> x²/a² + y²/b² + z²/c² = 1 — every trace (cross-section) is an ellipse.</li>' +
+          '<li><strong>Elliptic paraboloid:</strong> z/c = x²/a² + y²/b² — horizontal traces are ellipses, vertical traces are parabolas.</li>' +
+          '<li><strong>Hyperboloid of one sheet:</strong> x²/a² + y²/b² − z²/c² = 1 — one minus sign; a single connected tube-like surface.</li>' +
+          '<li><strong>Hyperboloid of two sheets:</strong> x²/a² − y²/b² − z²/c² = 1 — two minus signs; two separate bowl-like pieces.</li>' +
+          '<li><strong>Elliptic cone:</strong> x²/a² + y²/b² = z²/c² — two nappes meeting at the origin.</li>' +
+          '<li><strong>Hyperbolic paraboloid (saddle):</strong> z/c = x²/a² − y²/b² — a saddle shape; horizontal traces are hyperbolas.</li>' +
+        '</ul>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Quick read:</strong> one variable isolated and linear (like z/c = …) → a paraboloid. All three variables squared, set equal to a nonzero constant → ellipsoid or hyperboloid, depending on how many minus signs. Set equal to 0 → a cone.</div>',
+        '<p><strong>Worked example:</strong> classify 4x<sup>2</sup> − y<sup>2</sup> + 4z<sup>2</sup> = 4.</p>',
+        '<p>Divide by 4 to reach standard form:</p>',
+        '<div class="eq">x<sup>2</sup> − <span class="frac"><span class="num">y<sup>2</sup></span><span class="den">4</span></span> + z<sup>2</sup> = 1</div>',
+        '<p>Three squared terms set equal to 1, with exactly one minus sign (on y) — a <strong>hyperboloid of one sheet</strong>, with the y-axis as its axis.</p>',
+        '<div class="review-src">Companion notes: <a href="https://tutorial.math.lamar.edu/Classes/CalcIII/QuadricSurfaces.aspx" target="_blank" rel="noopener">Paul\'s Online Math Notes — Quadric Surfaces</a></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-vvf-intro",
+      class: "Calc 3",
+      kind: "Lecture",
+      topic: "Vector-Valued Functions (Ch. 3)",
+      title: "Vector-Valued Functions: Intro, Derivatives & Rules",
+      subject: "Definition, velocity, integral, and the derivative rules for r⃗(t)",
+      date: "Undated · after 9/14",
+      source: "Lecture -8.pdf",
+      tags: ["Vector-Valued Functions","Chapter 3"],
+      html: [
+        '<p class="lede">The opening of Chapter 3 — what a vector-valued function is, its derivative and integral, and the derivative rules that carry over from scalar calculus.</p>',
+        '<p class="muted-note">Written in a different pen in the notebook — likely picked back up in a later session.</p>',
+        '<p>A vector-valued function takes a 1-dimensional input (time) to a 3-dimensional output (position):</p>',
+        '<div class="eq">f: ℝ ⟶ ℝ<sup>3</sup> &nbsp;&nbsp; r⃗(t) = ⟨x(t), y(t), z(t)⟩</div>',
+        '<p>Lines are the special case where x(t), y(t), z(t) are all linear functions.</p>',
+        '<p>r⃗(t) carries more information than the trajectory alone — it also says <em>how</em> you moved along it. Example: r⃗₁(t) = ⟨t, t⟩ and r⃗₂(t) = ⟨t<sup>3</sup>, t<sup>3</sup>⟩ trace the same line y = x, just at different speeds.</p>',
+        '<p><strong>Velocity:</strong></p>',
+        '<div class="eq">v⃗ = <span class="frac"><span class="num">dr⃗(t)</span><span class="den">dt</span></span> = ⟨ <span class="frac"><span class="num">dx</span><span class="den">dt</span></span>, <span class="frac"><span class="num">dy</span><span class="den">dt</span></span>, <span class="frac"><span class="num">dz</span><span class="den">dt</span></span> ⟩</div>',
+        '<p><strong>Integral:</strong></p>',
+        '<div class="eq">∫ r⃗(t) dt = ⟨ ∫x(t)dt, ∫y(t)dt, ∫z(t)dt ⟩</div>',
+        '<p><strong>Derivative rules</strong> — sum, scalar multiple, dot product, cross product:</p>',
+        '<div class="eq"><div class="eq-line"><span class="frac"><span class="num">d</span><span class="den">dt</span></span>[r⃗₁ + r⃗₂] = <span class="frac"><span class="num">dr⃗₁</span><span class="den">dt</span></span> + <span class="frac"><span class="num">dr⃗₂</span><span class="den">dt</span></span></div><div class="eq-line"><span class="frac"><span class="num">d</span><span class="den">dt</span></span>[c·r⃗] = c <span class="frac"><span class="num">dr⃗</span><span class="den">dt</span></span></div><div class="eq-line"><span class="frac"><span class="num">d</span><span class="den">dt</span></span>[r⃗₁ · r⃗₂] = <span class="frac"><span class="num">dr⃗₁</span><span class="den">dt</span></span> · r⃗₂ + r⃗₁ · <span class="frac"><span class="num">dr⃗₂</span><span class="den">dt</span></span></div><div class="eq-line"><span class="frac"><span class="num">d</span><span class="den">dt</span></span>[r⃗₁ × r⃗₂] = <span class="frac"><span class="num">dr⃗₁</span><span class="den">dt</span></span> × r⃗₂ + r⃗₁ × <span class="frac"><span class="num">dr⃗₂</span><span class="den">dt</span></span></div></div>',
+        '<p>Product rule for a scalar function times a vector function, f(t)r⃗(t):</p>',
+        '<div class="eq"><span class="frac"><span class="num">d</span><span class="den">dt</span></span>[f(t)r⃗(t)] = <span class="frac"><span class="num">df</span><span class="den">dt</span></span> r⃗ + f <span class="frac"><span class="num">dr⃗</span><span class="den">dt</span></span></div>',
+        '<p><strong>Example:</strong> r⃗₁(t) = ⟨t, t<sup>2</sup>, e<sup>t</sup>⟩, f(t) = 2t</p>',
+        '<div class="eq"><div class="eq-line">f·r⃗₁ = ⟨2t<sup>2</sup>, 2t<sup>3</sup>, 2te<sup>t</sup>⟩</div><div class="eq-line"><span class="frac"><span class="num">d</span><span class="den">dt</span></span>(f·r⃗₁) = ⟨4t, 6t<sup>2</sup>, 2e<sup>t</sup> + 2te<sup>t</sup>⟩</div></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-res-vector-functions",
+      class: "Calc 3",
+      kind: "Resource",
+      topic: "Vector-Valued Functions (Ch. 3)",
+      title: "Tangent Vectors & Arc Length for r⃗(t)",
+      subject: "The unit tangent vector and arc length formula — extends the lecture's derivative rules",
+      date: "Outside resource",
+      source: "Paul's Online Math Notes (Lamar University)",
+      tags: ["Vector-Valued Functions","Arc Length","Unit Tangent Vector"],
+      html: [
+        '<p class="lede">Two things that build directly on the derivative rules already in the lecture notes: the unit tangent vector, and arc length along a curve.</p>',
+        '<p>Limits and continuity of r⃗(t) work componentwise, same as the derivative already does: lim r⃗(t) = ⟨lim x(t), lim y(t), lim z(t)⟩, and r⃗ is continuous at t = a exactly when each component function is.</p>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Unit tangent vector:</strong> T⃗(t) = r⃗\'(t) / ‖r⃗\'(t)‖ — points in the direction of travel along the curve, and always has length 1.</div>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Arc length</strong> of r⃗(t) for a ≤ t ≤ b: L = ∫<sub>a</sub><sup>b</sup> ‖r⃗\'(t)‖ dt.</div>',
+        '<p><strong>Worked example:</strong> the helix r⃗(t) = ⟨cos t, sin t, t⟩, for 0 ≤ t ≤ 2π.</p>',
+        '<div class="eq"><div class="eq-line">r⃗\'(t) = ⟨−sin t, cos t, 1⟩</div><div class="eq-line">‖r⃗\'(t)‖ = √(sin<sup>2</sup>t + cos<sup>2</sup>t + 1) = √2 &nbsp;(constant — the helix climbs at a steady rate)</div></div>',
+        '<div class="eq">L = ∫<sub>0</sub><sup>2π</sup> √2 dt = 2π√2</div>',
+        '<p>At t = 0: T⃗(0) = ⟨0, 1, 1⟩ / √2 — points straight up the helix\'s initial climb.</p>',
+        '<div class="review-src">Companion notes: <a href="https://tutorial.math.lamar.edu/Classes/CalcIII/VectorFunctions.aspx" target="_blank" rel="noopener">Paul\'s Online Math Notes — Vector Functions</a></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "c3-lecture-9-empty",
+      class: "Calc 3",
+      kind: "Lecture",
+      topic: "Not Yet Transcribed",
+      title: "Lecture 9",
+      subject: "No notes on this one yet",
+      date: "— no notes yet —",
+      source: "Lecture -9.pdf",
+      tags: ["No content yet"],
+      html: [
+        '<div class="empty-state">',
+        '<div class="empty-grid" aria-hidden="true"></div>',
+        '<p class="empty-msg">This notebook came through blank — just a cover page, no writing on it.</p>',
+        '<p class="empty-sub">Once you\'ve filled it in and re-export the PDF, send it over and I\'ll drop the new content into this slot.</p>',
+        '</div>'
+      ].join("\n")
+    },
+
+    // ================= LINEAR ALGEBRA =================
+
+    {
+      id: "la-linear-eqs-row-reduction",
+      class: "Linear Algebra",
+      kind: "Lecture",
+      topic: "Linear Equations & Row Reduction",
+      title: "Linear Equations & Row Reduction",
+      subject: "Solving systems by elimination and augmented-matrix row reduction",
+      date: "Aug 20",
+      source: "Lecture 1.pdf",
+      tags: ["Linear Equations","Row Reduction"],
+      html: [
+        '<p class="lede">The definition of a linear equation, then two systems solved by hand — one by elimination, one by row-reducing an augmented matrix.</p>',
+        '<p><strong>Def:</strong> a linear equation in the variables x₁, …, xₙ has the form a₁x₁ + a₂x₂ + … + aₙxₙ = b, where a₁, …, aₙ and b are real numbers.</p>',
+        '<p><strong>Example:</strong> 8x₁ + 5x₂ + √2x₃ = 7, &nbsp; 2x₂ + 3x₃ = −2.</p>',
+        '<p><strong>Non-examples</strong> (not linear): x₁² + 5x₂² = 3, &nbsp; 1/x₁ + 3x₂ = 3, &nbsp; sin(x₁) + 2 = 3.</p>',
+        '<p><strong>Preliminary example</strong> — solve by elimination:</p>',
+        '<div class="eq"><div class="eq-line">2x₁ + 3x₂ = 1</div><div class="eq-line">−x₁ + 4x₂ = 5</div></div>',
+        '<p>Doubling the second equation and adding it to the first cancels x₁:</p>',
+        '<div class="eq"><div class="eq-line">2x₁ + 3x₂ = 1</div><div class="eq-line">2(−x₁ + 4x₂ = 5) &nbsp;⟹&nbsp; −2x₁ + 8x₂ = 10</div><div class="eq-line">————————————</div><div class="eq-line">0 + 11x₂ = 11 &nbsp;⟹&nbsp; x₂ = 1</div></div>',
+
+        '<p><strong>Ex. 1 — solve by augmented matrix:</strong></p>',
+        '<div class="eq"><div class="eq-line">x₁ − 2x₂ + x₃ = 0</div><div class="eq-line">2x₂ − 8x₃ = 8</div><div class="eq-line">−4x₁ + 5x₂ + 9x₃ = −9</div></div>',
+        '<p>Augmented matrix and coefficient matrix:</p>',
+        '<div class="eq">' + mat([["1","−2","1"],["0","2","−8"],["−4","6","9"]], ["0","8","−9"]) + '</div>',
+        '<div class="callout"><strong>Worth double-checking:</strong> the system as stated has 5x₂ in the third equation, but the augmented matrix drawn right under it uses 6 in that spot — and the row reduction that follows keeps using 6. Everything below matches the matrix as drawn (6), not the 5 from the typed-out equation; worth reconciling against the lecture.</div>',
+        '<p><strong>Three row operation rules:</strong></p>',
+        '<ol class="rules"><li><strong>Interchange:</strong> you can swap any two rows.</li><li><strong>Scaling:</strong> you can multiply any row by any nonzero number.</li><li><strong>Replacement:</strong> you can replace a row by the sum of itself and a multiple of another row.</li></ol>',
+        '<p>R₃ ← R₃ + 4R₁:</p>',
+        '<div class="eq">' + mat([["1","−2","1"],["0","2","−8"],["0","−3","13"]], ["0","8","−9"]) + '</div>',
+        '<div class="callout"><strong>Worth double-checking:</strong> 4R₁ = ⟨4,−8,4,0⟩ added to the original row 3 ⟨−4,6,9,−9⟩ gives ⟨0,−2,13,−9⟩ — the notes write −3 in that second entry instead of −2. The rest of the reduction on the page proceeds from the −3 version.</div>',
+        '<p>R₂ ← ½R₂, then R₃ ← R₃ + 3R₂:</p>',
+        '<div class="eq">' + mat([["1","−2","1"],["0","1","−4"],["0","0","1"]], ["0","4","3"]) + '</div>',
+        '<p>Back-substituting: x₃ = 3, then x₂ − 4(3) = 4 ⟹ x₂ = 16.</p>',
+        '<p class="muted-note">The very last back-substitution line (solving for x₁) is hard to make out on the page — plugging x₂ = 16 and x₃ = 3 into x₁ − 2x₂ + x₃ = 0 gives x₁ = 29, which is what the reduced matrix above supports.</p>',
+
+        '<p><strong>Ex. 2 — consistent or inconsistent?</strong></p>',
+        '<div class="eq"><div class="eq-line">x₂ − 4x₃ = 8</div><div class="eq-line">2x₁ − 3x₂ + 2x₃ = 1</div><div class="eq-line">5x₁ − 8x₂ + 7x₃ = 1</div></div>',
+        '<p>R₁ ↔ R₂, then R₃ ← R₃ − (5/2)R₁, then R₃ ← 2R₃, then R₃ ← R₃ + R₂:</p>',
+        '<div class="eq">' + mat([["2","−3","2"],["0","1","−4"],["0","0","0"]], ["1","8","5"]) + '</div>',
+        '<p>The last row reads 0 = 5 — not true. <strong>No solution; the system is inconsistent.</strong></p>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-echelon-pivots",
+      class: "Linear Algebra",
+      kind: "Lecture",
+      topic: "Linear Equations & Row Reduction",
+      title: "Echelon Form, Reduced Echelon Form & Pivot Positions",
+      subject: "The formal definitions, plus the free-variable rule for infinitely many solutions",
+      date: "Aug 25",
+      source: "Lecture 1.pdf",
+      tags: ["Echelon Form","Row Reduction"],
+      html: [
+        '<p class="lede">The formal definitions of echelon form, reduced echelon form, and pivot positions.</p>',
+        '<p><strong>Def — echelon form.</strong> A matrix is in echelon form if:</p>',
+        '<ol class="rules"><li>All nonzero rows are above any rows of all zeros.</li><li>Each leading entry of a row is in a column to the right of the leading entry of the row above it.</li><li>All entries in a column below a leading entry are zero.</li></ol>',
+        '<p><strong>Example</strong> (already in echelon form):</p>',
+        '<div class="eq">' + mat([["2","4","−1","3","5"],["0","3","2","1","4"],["0","0","0","5","2"],["0","0","0","0","0"]]) + '</div>',
+        '<p><strong>Def — reduced echelon form.</strong> On top of the three conditions above:</p>',
+        '<ol class="rules" start="4"><li>The leading entry in each nonzero row is 1.</li><li>Each leading 1 is the only nonzero entry in its column.</li></ol>',
+        '<p><strong>Def — pivot position:</strong> the location in the <em>original</em> matrix that lines up with a leading 1 in its reduced echelon form. A column containing a pivot position is a <strong>pivot column</strong>, and it produces a <strong>basic variable</strong>; every other variable is <strong>free</strong>, and basic variables get expressed in terms of the free ones.</p>',
+        '<p class="muted-note">The worked example on this page (a matrix reduced down to pivots in columns 1 and 3, with x₂ free) is too faint to transcribe exactly, but the relations it lands on are legible: x₁ + 2x₂ = 1 and x₃ = 1, giving the general solution x₁ = 1 − 2x₂ (x₂ free), x₃ = 1.</p>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Rule, boxed on the page:</strong> if a system is consistent and has free variables, then the system has infinitely many solutions.</div>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-hw1",
+      class: "Linear Algebra",
+      kind: "Homework",
+      topic: "Linear Equations & Row Reduction",
+      title: "Homework — Row Reduction Practice",
+      subject: "Three systems solved by Gaussian elimination and augmented-matrix row reduction",
+      date: "Undated · red ink",
+      source: "Hw -1.pdf",
+      tags: ["Row Reduction","Linear Equations"],
+      html: [
+        '<p class="lede">Straightforward row-reduction and elimination practice, worked in red ink.</p>',
+        '<p><strong>Problem 1:</strong></p>',
+        '<div class="eq"><div class="eq-line">x + y − z = −2</div><div class="eq-line">2x − y + z = 5</div><div class="eq-line">−x + 2y + 2z = 1</div></div>',
+        '<div class="eq">' + mat([["1","1","−1"],["2","−1","1"],["−1","2","2"]], ["−2","5","1"]) + ' &nbsp;R₁+R₃⟶&nbsp; ' + mat([["1","1","−1"],["2","−1","1"],["0","3","1"]], ["−2","5","−1"]) + '</div>',
+        '<p><strong>Problem 2:</strong> x₁ + 5x₂ = 7, &nbsp; 4x₁ + 7x₂ = −11.</p>',
+        '<div class="eq"><div class="eq-line">−4(x₁ + 5x₂ = 7) &nbsp;⟹&nbsp; −4x₁ − 20x₂ = −28</div><div class="eq-line">+ &nbsp;4x₁ + 7x₂ = −11</div><div class="eq-line">—————————</div><div class="eq-line">−13x₂ = −39 &nbsp;⟹&nbsp; x₂ = 3</div></div>',
+        '<p>x₁ + 5(3) = 7 ⟹ x₁ + 15 = 7 ⟹ x₁ = −8.</p>',
+        '<p><strong>Problem 3:</strong> x₁ + 3x₂ = 13, &nbsp; x₁ − x₂ = 1.</p>',
+        '<div class="eq">' + mat([["1","3"],["1","−1"]], ["13","1"]) + ' &nbsp;R₂←R₂−R₁⟶&nbsp; ' + mat([["1","3"],["0","−4"]], ["13","−12"]) + '</div>',
+        '<p class="muted-note">The page ends here with an empty bracket sketched below — the last couple of steps (finishing the back-substitution) weren\'t written down. From the reduced matrix: −4x₂ = −12 ⟹ x₂ = 3, then x₁ = 1 + 3 = 4.</p>',
+        '<p><strong>Problem 4</strong> (also left unfinished): a 3-variable system reduces to an augmented matrix, then a row swap (R₁↔R₂) —</p>',
+        '<div class="eq">' + mat([["0","1","3"],["1","2","2"],["4","6","3"]], ["−6","0","13"]) + ' &nbsp;R₁↔R₂⟶&nbsp; ' + mat([["1","2","2"],["0","1","3"],["4","6","3"]], ["0","−6","13"]) + '</div>',
+        '<p class="muted-note">The page is cut off right after the swap — no further reduction is shown.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-vector-equations",
+      class: "Linear Algebra",
+      kind: "Reference",
+      topic: "Vectors, Span & Linear Independence",
+      title: "Vector Equations (§1.3)",
+      subject: "Column vectors in ℝ² and ℝ³, vector equality, addition and scalar multiplication",
+      date: "Undated · §1.3",
+      source: "1.3 Vector Equations.pdf",
+      tags: ["Vectors","Scalar Multiplication"],
+      html: [
+        '<p class="lede">The basics of column vectors — equality, addition, and scalar multiplication — in ℝ² and ℝ³.</p>',
+        '<p><strong>Vectors in ℝ².</strong> A matrix with only one column is a <em>column vector</em>. Example: u⃗ = ⟨3,−1⟩, v⃗ = ⟨2,3⟩, w⃗ = ⟨w₁,w₂⟩ where w₁, w₂ are real numbers.</p>',
+        '<p>Two vectors are equal iff their corresponding entries are equal: ⟨4,7⟩ ≠ ⟨7,4⟩.</p>',
+        '<p><strong>Vector addition:</strong> for u⃗ = ⟨1,−2⟩ and v⃗ = ⟨2,5⟩:</p>',
+        '<div class="eq">u⃗ + v⃗ = ⟨1+2, −2+5⟩ = ⟨3,3⟩</div>',
+        '<p><strong>Scalar multiplication:</strong> given u⃗ = ⟨2,5⟩ and a real number c:</p>',
+        '<div class="eq">5u⃗ = 5⟨2,5⟩ = ⟨10,25⟩</div>',
+        '<p><strong>Vectors in ℝ³.</strong> These are 3×1 column matrices with 3 entries, represented geometrically as points in three-dimensional space with arrows from the origin. Example: a⃗ = ⟨2,3,1⟩.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-span-combo",
+      class: "Linear Algebra",
+      kind: "Lecture",
+      topic: "Vectors, Span & Linear Independence",
+      title: "Linear Combinations & Span",
+      subject: "Defining span, and the theorem connecting Ax⃗=b⃗ to the span of A's columns",
+      date: "Undated · labeled \"Lecture #4\"",
+      source: "Lecture 1.pdf",
+      tags: ["Span","Linear Combinations"],
+      html: [
+        '<p class="lede">What span means, and the starred theorem tying it back to consistency of Ax⃗ = b⃗.</p>',
+        '<p class="muted-note">The introductory diagram here — vectors u⃗ and v⃗ sketched in the plane with a third vector b⃗ marked as a combination of them — is faint in the scan, so the specific numbers aren\'t reproduced below; the idea it\'s illustrating is that b⃗ = 2u⃗ + v⃗, i.e. b⃗ is a <em>linear combination</em> of u⃗ and v⃗.</p>',
+        '<p>Question 2: what is the set of <em>all</em> vectors that u⃗ and v⃗ can produce this way? Infinitely many — the set of all these vectors is called the <strong>span</strong> {u⃗, v⃗}.</p>',
+        '<p><strong>Connection to systems:</strong> x₁ + 2x₂ = 5, 3x₁ + x₂ = 5 can be written three equivalent ways:</p>',
+        '<div class="eq">' + mat([["1","2"],["3","1"]], ["5","5"]) + ' &nbsp;&nbsp; ' + mat([["1","2"],["3","1"]]) + mat([["x₁"],["x₂"]]) + ' = ' + mat([["5"],["5"]]) + ' &nbsp;&nbsp; x₁⟨1,3⟩ + x₂⟨2,1⟩ = ⟨5,5⟩</div>',
+        '<p>Observations: a vector in ℝ² has the form v⃗ = ⟨v₁,v₂⟩; a vector in ℝ³ has the form v⃗ = ⟨v₁,v₂,v₃⟩.</p>',
+        '<p><strong>Def:</strong> for v⃗₁, …, v⃗ₚ in ℝⁿ, a <em>linear combination</em> of these vectors is c₁v⃗₁ + c₂v⃗₂ + … + cₚv⃗ₚ, where c₁, …, cₚ are scalars.</p>',
+        '<p><strong>Ex. 1:</strong> is b⃗ = ⟨5,3⟩ a linear combination of v⃗₁ = ⟨1,2⟩ and v⃗₂ = ⟨3,−1⟩?</p>',
+        '<div class="eq"><div class="eq-line">c₁⟨1,2⟩ + c₂⟨3,−1⟩ = ⟨5,3⟩ &nbsp;⟹&nbsp; c₁ + 3c₂ = 5, &nbsp; 2c₁ − c₂ = 3</div></div>',
+        '<p>R₂ ← −2R₁ + R₂:</p>',
+        '<div class="eq">' + mat([["1","3"],["0","−7"]], ["5","−7"]) + '</div>',
+        '<p>So −7c₂ = −7 ⟹ c₂ = 1, and c₁ + 3(1) = 5 ⟹ c₁ = 2. Yes — b⃗ = 2v⃗₁ + v⃗₂.</p>',
+        '<p><strong>Def — span:</strong> for v⃗₁, …, v⃗ₚ in ℝⁿ, span{v⃗₁, …, v⃗ₚ} is the set of all linear combinations of v⃗₁, …, v⃗ₚ. (⟨5,3⟩ ∈ span{v⃗₁,v⃗₂}, per Ex. 1.)</p>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Starred rule:</strong> Ax⃗ = b⃗ is consistent if and only if b⃗ is in the span of {v⃗₁, v⃗₂, …, v⃗ₚ}, the columns of A.</div>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-solutions",
+      class: "Linear Algebra",
+      kind: "Reference",
+      topic: "Vectors, Span & Linear Independence",
+      title: "Solution Sets of Linear Systems (§1.5)",
+      subject: "Homogeneous vs. non-homogeneous systems, and the algorithm for parametric vector form",
+      date: "Undated · §1.5, notes on the textbook",
+      source: "Solutions Of Linear System Textbook Notes.pdf",
+      tags: ["Homogeneous Systems","Parametric Vector Form","Row Reduction"],
+      html: [
+        '<p class="lede">Nick\'s own notes on textbook §1.5 — not the textbook itself, but a worked-through summary of it.</p>',
+        '<p>A linear system is <strong>homogeneous</strong> if it can be written Ax⃗ = 0⃗, where A is an m×n matrix and 0⃗ is the zero vector in ℝᵐ. Such a system always has at least one solution — namely x⃗ = 0⃗, the <strong>trivial solution</strong>.</p>',
+        '<p>The interesting question is whether a <strong>non-trivial</strong> solution exists — a non-zero vector x⃗ that also satisfies Ax⃗ = 0⃗.</p>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);">The homogeneous equation Ax⃗ = 0⃗ has a non-trivial solution if and only if the equation has at least one free variable.</div>',
+        '<p><strong>Theorem 6:</strong> suppose Ax⃗ = b⃗ is consistent for some given b⃗, and let p⃗ be one solution. Then the solution set of Ax⃗ = b⃗ is the set of all vectors of the form w⃗ = p⃗ + v⃗ₕ, where v⃗ₕ is any solution of the homogeneous equation Ax⃗ = 0⃗.</p>',
+        '<p>In other words: if Ax⃗ = b⃗ has a solution, its whole solution set can be found by translating the solution set of Ax⃗ = 0⃗ by any one particular solution p⃗ of Ax⃗ = b⃗.</p>',
+        '<p><strong>Algorithm for writing a solution set (of a consistent system) in parametric vector form:</strong></p>',
+        '<ol class="rules"><li>Row reduce the augmented matrix to reduced echelon form.</li><li>Express each basic variable in terms of any free variable appearing in an equation.</li><li>Write a typical solution x⃗ as a vector whose entries depend on the free variables.</li><li>Decompose x⃗ into a linear combination of vectors, using the free variables as parameters.</li></ol>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-homogeneous-nonhomog",
+      class: "Linear Algebra",
+      kind: "Lecture",
+      topic: "Vectors, Span & Linear Independence",
+      title: "Homogeneous & Non-Homogeneous Systems",
+      subject: "Matrix-vector multiplication as a linear combination, and the four-statements theorem",
+      date: "Sep 1",
+      source: "Lecture 1.pdf",
+      tags: ["Homogeneous Systems","Span"],
+      html: [
+        '<p class="lede">Recasting Ax⃗ = b⃗ as a linear combination of A\'s columns, then the theorem describing when Ax⃗ = b⃗ is solvable for every b⃗.</p>',
+        '<p class="muted-note">The notebook literally labels this session "lecture #IDK" — the numbering had gotten away from the notes by this point.</p>',
+        '<p><strong>Refresher.</strong> If Ax⃗ = b⃗ is consistent, then b⃗ ∈ span{a⃗₁, a⃗₂, …, a⃗ₙ}, where a⃗₁, …, a⃗ₙ are the columns of A.</p>',
+        '<p><strong>Q1:</strong> what does it mean for Ax⃗ = b⃗ to be consistent? <strong>A:</strong> it has at least one solution.</p>',
+        '<p><strong>Q2:</strong> what does b⃗ ∈ span{a⃗₁,…,a⃗ₙ} mean? <strong>A:</strong> we can find scalars x₁,…,xₙ such that a⃗₁x₁ + a⃗₂x₂ + … + a⃗ₙxₙ = b⃗.</p>',
+        '<p>Writing A = [a⃗₁, a⃗₂, …, a⃗ₙ] (columns) and x⃗ = ⟨x₁,…,xₙ⟩:</p>',
+        '<div class="eq">Ax⃗ = x₁a⃗₁ + x₂a⃗₂ + x₃a⃗₃ + … + xₙa⃗ₙ</div>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Matrix-vector multiplication is simply a linear combination of the columns of A.</strong> For an m×n matrix — n columns, m rows: A: ℝⁿ ⟶ ℝᵐ. Its columns live in ℝᵐ and its input vectors live in ℝⁿ.</div>',
+        '<p>Leading question for the next theorem: for what values of b⃗ does Ax⃗ = b⃗ have a solution?</p>',
+
+        '<p><strong>Theorem — four equivalent statements</strong> for an m×n matrix A:</p>',
+        '<ol class="rules"><li>Ax⃗ = b⃗ has a solution for every b⃗ ∈ ℝᵐ.</li><li>Every v⃗ ∈ ℝᵐ is a linear combination of the columns of A.</li><li>The columns of A span ℝᵐ.</li><li>A has a pivot in every row.</li></ol>',
+        '<p class="muted-note">All four of these statements are either all true or all false — for a given A, they stand or fall together.</p>',
+        '<p><strong>Ex. 1:</strong> A = ' + mat([["1","2","0"],["0","1","3"],["2","5","3"]]) + '. R₃ ← −2R₁ + R₃ gives echelon form ' + mat([["1","2","0"],["0","1","3"],["0","0","0"]]) + ', and reduced echelon form ' + mat([["1","0","−6"],["0","1","3"],["0","0","0"]]) + '. Row 3 has no pivot — so for this A, all four statements above are <strong>false</strong>.</p>',
+
+        '<p><strong>Matrix properties.</strong> For u⃗, v⃗ ∈ ℝⁿ and scalar c:</p>',
+        '<div class="eq"><div class="eq-line">A(u⃗ + v⃗) = Au⃗ + Av⃗</div><div class="eq-line">A(cu⃗) = c(Au⃗)</div><div class="eq-line">A(cu⃗ + dv⃗) = c(Au⃗) + d(Av⃗)</div></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-homog-lin-indep",
+      class: "Linear Algebra",
+      kind: "Lecture",
+      topic: "Vectors, Span & Linear Independence",
+      title: "Homogeneous Systems & Linear Independence",
+      subject: "Parametric vector form, and the definitions/theorems for linear independence",
+      date: "Sep 3",
+      source: "Lecture 1.pdf",
+      tags: ["Homogeneous Systems","Linear Independence"],
+      html: [
+        '<p class="lede">Parametric vector form for homogeneous and non-homogeneous systems, then the core theory of linear independence.</p>',
+        '<p>Consider Ax⃗ = 0⃗ — a <strong>homogeneous system</strong>. x⃗ = 0⃗ (the <em>trivial solution</em>) always solves it. Any nonzero x⃗ that also solves it is a <strong>non-trivial solution</strong>. Ax⃗ = b⃗ (with b⃗ ≠ 0⃗) is a <strong>non-homogeneous system</strong>.</p>',
+        '<p><strong>Ex. 1(a) — homogeneous:</strong> A = ' + mat([["1","2"],["0","0"]]) + '. Solve Ax⃗ = 0⃗:</p>',
+        '<div class="eq">' + mat([["1","2"],["0","0"]], ["0","0"]) + ' &nbsp;⟹&nbsp; x₁ + 2x₂ = 0, x₂ free</div>',
+        '<p>Let x₂ = t: x₁ = −2t. So x⃗ = ⟨−2t, t⟩ = t⟨−2, 1⟩ — the <strong>parametric vector form</strong>.</p>',
+        '<p><strong>(b) — non-homogeneous version:</strong> same A, with b⃗ = ⟨4,0⟩: x₁ + 2x₂ = 4 ⟹ x₁ = 4 − 2t (x₂ = t). x⃗ = ⟨4,0⟩ + t⟨−2,1⟩.</p>',
+        '<p class="muted-note">The page then poses, without resolving it, what a solution with <em>two</em> free parameters would look like — ⟨4,0⟩ + t₁⟨−2,1⟩ + t₂⟨−1,3⟩ — as a lead-in to systems with more than one free variable.</p>',
+
+        '<p><strong>Def — linear independence.</strong> An indexed set {v⃗₁,…,v⃗ₚ} in ℝⁿ is <strong>linearly independent</strong> if x₁v⃗₁ + x₂v⃗₂ + … + xₚv⃗ₚ = 0⃗ has only the trivial solution. The set is <strong>linearly dependent</strong> if there exist scalars x₁,…,xₚ, not all zero, such that x₁v⃗₁ + … + xₚv⃗ₚ = 0⃗.</p>',
+        '<p><strong>Ex. 2:</strong> v⃗₁ = ⟨1,2,3⟩, v⃗₂ = ⟨4,5,6⟩, v⃗₃ = ⟨2,1,0⟩ — linearly independent?</p>',
+        '<div class="eq">' + mat([["1","4","2"],["2","5","1"],["3","6","0"]], ["0","0","0"]) + ' &nbsp;⟶&nbsp; ' + mat([["1","4","2"],["0","1","1"],["0","0","0"]], ["0","0","0"]) + '</div>',
+        '<p>x₃ is a free variable, so there are infinitely many solutions — the set is <strong>not</strong> linearly independent.</p>',
+        '<p><strong>Note:</strong> for a pair {v⃗₁,v⃗₂}, the vectors are linearly dependent exactly when one is a scalar multiple of the other. (a) {⟨3,6⟩, ⟨1,2⟩} — dependent, since ⟨3,6⟩ = 3⟨1,2⟩. (b) {⟨3,6⟩, ⟨2,2⟩} — independent.</p>',
+        '<p><strong>Theorem 7:</strong> an indexed set S = {v⃗₁,…,v⃗ₚ} of two or more vectors is linearly dependent if at least one of the vectors in S is a linear combination of the others.</p>',
+        '<p><strong>Ex. 3:</strong> v⃗₁ = ⟨1,2,1⟩, v⃗₂ = ⟨2,−1,3⟩, v⃗₃ = ⟨5,0,7⟩. Since v⃗₃ = v⃗₁ + 2v⃗₂, this set is linearly dependent.</p>',
+        '<p><strong>Theorem 8:</strong> if a set contains more vectors than there are entries in each vector, the set is linearly dependent. (For v⃗₁,…,v⃗ₚ in ℝⁿ: if p &gt; n, the set is linearly dependent.)</p>',
+        '<div class="eq">' + mat([["1","0","1"],["0","1","3"]], ["−1","4"]) + ' &nbsp;⟹&nbsp; x₁ + x₃ = −1, x₂ + 3x₃ = 4</div>',
+        '<div class="callout"><strong>Worth double-checking:</strong> right under this matrix, the notes write out the equations as x₁ + x₃ = 1 and x₂ + 3x₃ = 4 — dropping the minus sign the matrix has on that first constant (−1). The matrix is the more legible of the two, so x₁ + x₃ = −1 is what\'s used above.</div>',
+        '<p><strong>Theorem 9:</strong> if S = {v⃗₁,…,v⃗ₚ} in ℝⁿ contains the zero vector, then S is linearly dependent. <em>Proof:</em> let v⃗₁ = 0⃗ and v⃗₂,…,v⃗ₚ ≠ 0⃗. Then v⃗₁ + 0·v⃗₂ + 0·v⃗₃ + … + 0·v⃗ₚ = 0⃗ is a non-trivial combination (the coefficient on v⃗₁ is 1, not 0).</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-transformations",
+      class: "Linear Algebra",
+      kind: "Lecture",
+      topic: "Linear Transformations",
+      title: "Transformations & Linear Transformations",
+      subject: "Domain, codomain, range, and the two-part definition of linearity",
+      date: "Sep 10",
+      source: "Lecture 1.pdf",
+      tags: ["Linear Transformations"],
+      html: [
+        '<p class="lede">The vocabulary of transformations, then what makes one linear — including the quick T(0⃗)=0⃗ check for ruling one out.</p>',
+        '<p><strong>Def:</strong> a transformation T is a rule that assigns each vector in ℝⁿ exactly one output value in ℝᵐ. T: ℝⁿ ⟶ ℝᵐ. ℝⁿ is the <strong>domain</strong> of T; ℝᵐ is the <strong>codomain</strong>. If x⃗ ∈ ℝⁿ, T(x⃗) is the <strong>image</strong> of x⃗; the set of all images T(x⃗) is the <strong>range</strong> of T.</p>',
+        '<p><strong>Ex. 1:</strong> T: ℝ² ⟶ ℝ³ defined by T⟨x₁,x₂⟩ = ⟨x₁ + 2x₂, 3x₁ − x₂, x₂⟩.</p>',
+        '<p>(a) Image of u⃗ = ⟨4,1⟩: T(u⃗) = ⟨4 + 2(1), 3(4) − 1, 1⟩ = ⟨6, 11, 1⟩.</p>',
+        '<p>(b) Domain: ℝ². Codomain: ℝ³.</p>',
+        '<p>(c) Range of T — break into components: T⟨x₁,x₂⟩ = x₁⟨1,3,0⟩ + x₂⟨2,−1,1⟩. These two vectors aren\'t multiples of each other (linearly independent), so range(T) = span{⟨1,3,0⟩, ⟨2,−1,1⟩}.</p>',
+        '<p>Let A = ' + mat([["7","14"],["3","6"]]) + ' and T(x⃗) = A(x⃗), T: ℝ² ⟶ ℝ². Since ⟨14,6⟩ = 2⟨7,3⟩, range(T) is just the span{⟨7,3⟩}.</p>',
+
+        '<p><strong>Def — linear transformation:</strong> a transformation is linear if (1) T(u⃗+v⃗) = T(u⃗)+T(v⃗) and (2) T(cu⃗) = c·T(u⃗). Recall matrix-vector math: A(u⃗+v⃗) = Au⃗+Av⃗, A(cu⃗) = cA(u⃗) — so every matrix transformation T(x⃗) = Ax⃗ is linear.</p>',
+        '<p><strong>Mini example:</strong> A = ' + mat([["1","3"],["2","4"]]) + ', u⃗ = ⟨1,0⟩, v⃗ = ⟨0,1⟩.</p>',
+        '<div class="eq"><div class="eq-line">Au⃗ = ⟨1(1)+3(0), 2(1)+4(0)⟩ = ⟨1,2⟩</div><div class="eq-line">Av⃗ = ⟨1(0)+3(1), 2(0)+4(1)⟩ = ⟨3,4⟩</div><div class="eq-line">Au⃗ + Av⃗ = ⟨1,2⟩ + ⟨3,4⟩ = ⟨4,6⟩</div><div class="eq-line">A(u⃗+v⃗) = A⟨1,1⟩ = ⟨4,6⟩ &nbsp;✓ matches</div></div>',
+        '<p><strong>Ex. 3:</strong> T: ℝ² ⟶ ℝ² defined by T⟨x₁,x₂⟩ = ⟨2x₁ − x₂, 3x₁ + 4x₂⟩ — posed as "is T linear?" without being carried through on the page.</p>',
+        '<p>Let T: ℝ² ⟶ ℝ² be defined instead by T⟨x₁,x₂⟩ = ⟨3x₁ − x₂ + 4, x₁ + 3x₂⟩. <strong>Always check this first</strong> — recall T(c·v⃗) = c·T(v⃗); let c = 0: T(0·v⃗) = 0·T(v⃗) = 0⃗.</p>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Boxed rule:</strong> T(0⃗) = 0⃗ is true for every linear transformation. (This T has a "+4" baked in, so T(0,0) = ⟨4,0⟩ ≠ ⟨0,0⟩ — the quick check that rules it out.)</div>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-matrix-of-transformation",
+      class: "Linear Algebra",
+      kind: "Lecture",
+      topic: "Linear Transformations",
+      title: "The Matrix of a Linear Transformation",
+      subject: "Standard matrices for dilation and rotation, plus onto and one-to-one",
+      date: "Sep 15",
+      source: "Lecture 1.pdf",
+      tags: ["Linear Transformations","Standard Matrix","Onto & One-to-One"],
+      html: [
+        '<p class="lede">Building a linear transformation\'s standard matrix from where it sends e⃗₁ and e⃗₂, then the definitions of onto and one-to-one.</p>',
+        '<p><strong>Ex. 1:</strong> the columns of I₂ = ' + mat([["1","0"],["0","1"]]) + ' are e⃗₁ = ⟨1,0⟩ and e⃗₂ = ⟨0,1⟩. Suppose T: ℝ² ⟶ ℝ³ is linear with T(e⃗₁) = ⟨5,−7,2⟩ and T(e⃗₂) = ⟨−3,8,0⟩. Find a formula for the image of an arbitrary x⃗ ∈ ℝ²:</p>',
+        '<div class="eq"><div class="eq-line">x⃗ = ⟨x₁,x₂⟩ = x₁e⃗₁ + x₂e⃗₂</div><div class="eq-line">T(x⃗) = T(x₁e⃗₁ + x₂e⃗₂) = x₁T(e⃗₁) + x₂T(e⃗₂) &nbsp;(since T is linear)</div><div class="eq-line">= x₁⟨5,−7,2⟩ + x₂⟨−3,8,0⟩ = ⟨5x₁−3x₂, −7x₁+8x₂, 2x₁⟩</div></div>',
+        '<p>As a matrix: T(x⃗) = ' + mat([["5","−3"],["−7","8"],["2","0"]]) + mat([["x₁"],["x₂"]]) + ' = Ax⃗. <strong>A is called the standard matrix.</strong></p>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Theorem:</strong> let T: ℝⁿ ⟶ ℝᵐ be a linear transformation. Then there exists a unique matrix A such that T(x⃗) = Ax⃗ for all x⃗ ∈ ℝⁿ.</div>',
+        '<p><strong>Ex. 2:</strong> find the standard matrix A for the dilation transformation T(x⃗) = 3x⃗, for all x⃗ ∈ ℝ². (Note: given T(x⃗) = rx⃗, if r &gt; 1 it\'s a <em>dilation</em>; if 0 ≤ r ≤ 1 it\'s a <em>contraction</em>.)</p>',
+        '<div class="eq">T(e⃗₁) = 3e⃗₁ = ⟨3,0⟩ &nbsp;&nbsp; T(e⃗₂) = 3e⃗₂ = ⟨0,3⟩ &nbsp;&nbsp; A = ' + mat([["3","0"],["0","3"]]) + '</div>',
+        '<p><strong>Ex. 3:</strong> let T: ℝ² ⟶ ℝ² be a linear transformation that rotates every point in ℝ² about the origin through an angle θ. The standard matrix works out to:</p>',
+        '<div class="eq">A = ' + mat([["cosθ","−sinθ"],["sinθ","cosθ"]]) + '</div>',
+
+        '<p><strong>Def — onto:</strong> a mapping T: ℝⁿ ⟶ ℝᵐ is <em>onto</em> if each b⃗ ∈ ℝᵐ is the image of at least one x⃗ ∈ ℝⁿ — equivalently, the range of T equals the codomain ℝᵐ. If T(x⃗) = Ax⃗, T is onto ℝᵐ ⟺ for every b⃗ ∈ ℝᵐ, Ax⃗ = b⃗ is consistent ⟺ every row [of the row-reduced A] has a pivot ⟺ the columns of A span ℝᵐ.</p>',
+        '<p><strong>Def — one-to-one:</strong> a mapping T: ℝⁿ ⟶ ℝᵐ is <em>one-to-one</em> if each b⃗ ∈ ℝᵐ is the image of at most one x⃗ ∈ ℝⁿ. Equivalently, for each b⃗ ∈ ℝᵐ, the equation T(x⃗) = b⃗ has a unique solution or no solution at all.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-hw3",
+      class: "Linear Algebra",
+      kind: "Homework",
+      topic: "Linear Transformations",
+      title: "Homework — Standard Matrices & a 3-Variable System",
+      subject: "Applying a diagonal standard matrix, then setting up a system from a given matrix equation",
+      date: "Undated",
+      source: "Hw -3.pdf",
+      tags: ["Standard Matrix","Linear Transformations","Row Reduction"],
+      html: [
+        '<p class="lede">Two problems: computing images under a scaling transformation, then setting up a linear system from a matrix-vector equation.</p>',
+        '<p><strong>1.8.1</strong> Let A = ' + mat([["4","0"],["0","4"]]) + ' and T: ℝ² ⟶ ℝ² be defined by T(x⃗) = Ax⃗. Find the images of u⃗ = ⟨3,−3⟩ and v⃗ = ⟨a,b⟩.</p>',
+        '<div class="eq"><div class="eq-line">T(u⃗) = ⟨4(3)+0(−3), 0(3)+4(−3)⟩ = ⟨12,−12⟩</div><div class="eq-line">T(v⃗) = ⟨4(a)+0(b), 0(a)+4(b)⟩ = ⟨4a, 4b⟩</div></div>',
+        '<p>(A is just a uniform 4× scaling — every vector gets stretched by a factor of 4 in place.)</p>',
+        '<p><strong>Second problem:</strong> from a given matrix equation, the notes pull out the system:</p>',
+        '<div class="eq"><div class="eq-line">6x₂ − 19x₃ = −4</div><div class="eq-line">−3x₁ + 9x₂ + 21x₃ = 3</div></div>',
+        '<p class="muted-note">The full 2×3 coefficient matrix these came from is smudged on the page — only these two equations survive legibly, and the page doesn\'t carry the reduction any further.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-lecture-2-empty",
+      class: "Linear Algebra",
+      kind: "Lecture",
+      topic: "Not Yet Transcribed",
+      title: "Lecture -2",
+      subject: "No notes on this one yet",
+      date: "— no notes yet —",
+      source: "Lecture -2.pdf",
+      tags: ["No content yet"],
+      html: [
+        '<div class="empty-state">',
+        '<div class="empty-grid" aria-hidden="true"></div>',
+        '<p class="empty-msg">This notebook came through blank — just a couple of cover pages, no writing on them.</p>',
+        '<p class="empty-sub">Once you\'ve filled it in and re-export the PDF, send it over and I\'ll drop the new content into this slot.</p>',
+        '</div>'
+      ].join("\n")
+    },
+
+    {
+      id: "la-lecture-3-empty",
+      class: "Linear Algebra",
+      kind: "Lecture",
+      topic: "Not Yet Transcribed",
+      title: "Lecture -3",
+      subject: "No notes on this one yet",
+      date: "— no notes yet —",
+      source: "Lecture -3.pdf",
+      tags: ["No content yet"],
+      html: [
+        '<div class="empty-state">',
+        '<div class="empty-grid" aria-hidden="true"></div>',
+        '<p class="empty-msg">This one came through blank too — just a stray pen mark, no real writing.</p>',
+        '<p class="empty-sub">Once you\'ve filled it in and re-export the PDF, send it over and I\'ll drop the new content into this slot.</p>',
+        '</div>'
+      ].join("\n")
+    },
+
+    // ================= PHYSICS 2 =================
+
+    {
+      id: "p2-first-lecture",
+      class: "Physics 2",
+      kind: "Lecture",
+      topic: "Charge, Conductors & Grounding",
+      title: "First Lecture: Charge Basics",
+      subject: "Conductors vs. insulators, and the basic rules of electric charge",
+      date: "Aug 18",
+      source: "1st Lecture.pdf",
+      tags: ["Electric Charge","Conductors & Insulators"],
+      html: [
+        '<p class="lede">The very first day — the basic vocabulary of electric charge.</p>',
+        '<p>Electrons move freely in some materials more than others (conductors and insulators).</p>',
+        '<ul><li>Particles have electric charge that is either + or −. Opposites attract; like charges repel.</li><li>Electric forces act at a distance.</li></ul>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-lecture-2",
+      class: "Physics 2",
+      kind: "Lecture",
+      topic: "Charge, Conductors & Grounding",
+      title: "Electrical Grounding",
+      subject: "What grounding a conductor does to any charge sitting on it",
+      date: "Aug 20",
+      source: "Lecture 2.pdf",
+      tags: ["Grounding","Conductors & Insulators"],
+      html: [
+        '<p class="lede">A short one on grounding.</p>',
+        '<p>You can <strong>ground</strong> a conducting object by attaching it to a large conductor — the object becomes neutral. In the absence of an external charge, this causes any charge on the conducting object to dissipate, because charges repel each other.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-ch21-1-2",
+      class: "Physics 2",
+      kind: "Reference",
+      topic: "Charge, Conductors & Grounding",
+      title: "Charge & Conductors (Ch 21.1–21.2)",
+      subject: "Structure of matter, conservation of charge, and conductors vs. insulators",
+      date: "Undated · Ch 21.1–21.2 notes",
+      source: "Notes On Chapt 21.1-21.2.pdf",
+      tags: ["Electric Charge","Conductors & Insulators"],
+      html: [
+        '<p class="lede">Textbook notes on the structure of matter and what separates a conductor from an insulator.</p>',
+        '<p>Electromagnetic interactions involve particles that have electric charge. When charges are at rest in our reference frame, they exert <em>electrostatic</em> forces on each other.</p>',
+        '<p><strong>21.1 — Electric charge and the structure of matter.</strong> Atoms are made of three particles: (1) negatively charged — the electron, (2) positively charged — the proton, (3) uncharged — the neutron.</p>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Principle of conservation of charge:</strong> the sum of all the electric charge in any closed system is constant.</div>',
+        '<p><strong>21.2 — Conductors, insulators, and induced charges.</strong> Some materials permit electric charge to move easily from one point to another; others do not.</p>',
+        '<p><strong>Conductors</strong> permit the easy movement of charge through them, while insulators do not. Most metals are good conductors, while non-metals are insulators. Within a solid metal (e.g. copper), one or more outer electrons in each atom can become detached and move freely throughout the material.</p>',
+        '<p class="muted-note">The page ends with just the heading "Charging by induction" — no notes follow it.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-ch21-3",
+      class: "Physics 2",
+      kind: "Reference",
+      topic: "Coulomb's Law, Fields & Dipoles",
+      title: "Coulomb's Law & Superposition (Ch 21.3)",
+      subject: "The inverse-square law for point charges, and the superposition principle",
+      date: "Undated · Ch 21.3 notes",
+      source: "Notes On Ch 21-.pdf",
+      tags: ["Coulomb's Law","Superposition"],
+      html: [
+        '<p class="lede">Textbook notes on Coulomb\'s law and superposition, ahead of the lecture that builds on them.</p>',
+        '<p>For point charges (charged objects that are very small), Coulomb found that the electric force is proportional to 1/r² — when the distance r doubles, the force drops to a quarter of its magnitude.</p>',
+        '<div class="eq">F = k <span class="frac"><span class="num">|q₁q₂|</span><span class="den">r²</span></span></div>',
+        '<p>The magnitude of the electric force between two point charges is directly proportional to the product of the charges and inversely proportional to the square of the distance between them, where k is a proportionality constant:</p>',
+        '<div class="eq">k = 8.988 × 10⁹ N·m²/C²</div>',
+        '<p>Coulomb\'s law describes only the interaction of <em>two</em> point charges. When two charges each exert a force on a third charge, the total force on that third charge is the vector sum of the two individual forces — the <strong>principle of superposition</strong> of charges.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-coulomb-fields",
+      class: "Physics 2",
+      kind: "Lecture",
+      topic: "Coulomb's Law, Fields & Dipoles",
+      title: "Coulomb's Law Worked, Electric Fields & Charge Density",
+      subject: "A full numeric superposition problem, the E-field definition, and the charged semicircular wire",
+      date: "Aug 25",
+      source: "Lecture -3.pdf",
+      tags: ["Coulomb's Law","Superposition","Electric Fields","Charge Density"],
+      html: [
+        '<p class="lede">A fully worked Coulomb\'s-law superposition problem, the electric field definition, charge densities, and the field of a charged semicircular wire.</p>',
+
+        '<div class="eq">F = k <span class="frac"><span class="num">|q₁q₂|</span><span class="den">r²</span></span> &nbsp;&nbsp; (scalar equation) &nbsp;&nbsp; k = 8.999 × 10⁹ N·m²/C²</div>',
+        '<p><strong>Superposition principle:</strong> electric forces add as vectors. For three charges q₁, q₂, q₃, the net force on q₃ is F⃗net = F⃗₁₃ + F⃗₂₃.</p>',
+
+        '<p><strong>Worked example — adding force vectors.</strong> q₁ = 3 nC, q₂ = −3 nC, q₃ = 6 nC, with q₃ sitting 0.300 m to the right of q₁ and q₂ offset ±0.100 m vertically from that line (so q₃ is 0.300 m from q₁ horizontally, and √(0.1²+0.3²) m from q₂). Find the net force on q₃.</p>',
+        '<div class="eq"><div class="eq-line">F₁₃ = k|(3nC)(6nC)| / (0.3m)² = 1.7998×10⁻⁶ N &nbsp;(along +x̂, since q₁,q₃ same sign — repulsive, straight out)</div><div class="eq-line">F₂₃ = k|(−3nC)(6nC)| / [(0.1m)² + (0.3m)²] = 1.61982×10⁻⁶ N</div><div class="eq-line">θ = tan⁻¹(0.1m / 0.3m) = 18.43°</div></div>',
+        '<div class="eq"><div class="eq-line">F₂₃ₓ = F₂₃cosθ = 1.5367×10⁻⁶ N (−x̂) &nbsp;&nbsp; F₂₃ᵧ = F₂₃sinθ = 5.122×10⁻⁷ N (−ŷ)</div><div class="eq-line">Fnet,x = F₁₃ₓ + F₂₃ₓ = 2.630×10⁻⁷ N (x̂)</div><div class="eq-line">Fnet,y = F₂₃ᵧ = 5.122×10⁻⁷ N</div></div>',
+        '<div class="eq"><div class="eq-line">Fnet = √(Fnet,x² + Fnet,y²) = 5.7585×10⁻⁷ N</div><div class="eq-line">tanβ = |Fnet,y| / |Fnet,x| &nbsp;&nbsp; 360° = α + β &nbsp;⟹&nbsp; α = 360° − β = 297.187° (measuring clockwise from the x-axis)</div></div>',
+
+        '<p><strong>Notes on fields.</strong> An electric field is a <em>vector field</em> — it has a vector value at every point in space. For a test charge q′: F⃗ₑ = q′E⃗, so E⃗ = F⃗ₑ/q′.</p>',
+        '<p><strong>Def — E-field:</strong> E⃗ = F⃗/q. Field created by a point charge: E = kq/r².</p>',
+        '<p><strong>Charge densities</strong> for continuous distributions:</p>',
+        '<div class="eq"><div class="eq-line">volumetric: ρ = q/V &nbsp;(C/m³)</div><div class="eq-line">area: σ = q/A &nbsp;(C/m²)</div><div class="eq-line">linear: λ = q/L &nbsp;(C/m)</div></div>',
+        '<div class="callout"><strong>Worth double-checking:</strong> just to the left of that clean list, the notes first jot the same three densities using m for mass instead of q for charge (ρ=m/V in kg/m³, σ=m/A in kg/m², λ=m/L in kg/m) — leftover habit from mass-density formulas. The charge-density versions above (with q and C-based units) are what the rest of the derivations on this page actually use.</div>',
+
+        '<p><strong>Field of a charged semicircular wire.</strong> A thin semicircular wire, radius R, total charge Q. Chop it into points parameterized by φ, the angle between the vertical and the line to a differential element, with −π/2 ≤ φ ≤ π/2.</p>',
+        '<div class="eq">ds = Rdφ &nbsp;&nbsp; dq = λ·ds &nbsp;&nbsp; λ = Q/L</div>',
+        '<div class="eq"><div class="eq-line">dE = k·dq/r² = k(Rλdφ)/R² = kλdφ/R</div><div class="eq-line">By symmetry the x-components cancel; dEy = dE·cosφ, pointing toward P (−ŷ)</div><div class="eq-line">∫dE⃗y = ∫ <span class="frac"><span class="num">kλdφ</span><span class="den">R</span></span> cosφ (−ŷ)</div></div>',
+        '<div class="eq">E⃗y = <span class="frac"><span class="num">kλ</span><span class="den">R</span></span> sinφ ⎮<sub>−π/2</sub><sup>π/2</sup> (−ŷ) = <span class="frac"><span class="num">kλ</span><span class="den">R</span></span> (1 − (−1)) (−ŷ) = <span class="frac"><span class="num">2kλ</span><span class="den">R</span></span> (−ŷ)</div>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-dipoles-disk",
+      class: "Physics 2",
+      kind: "Lecture",
+      topic: "Coulomb's Law, Fields & Dipoles",
+      title: "Electric Dipoles & the Charged Disk",
+      subject: "Dipole torque and moment, and the on-axis field of a uniformly charged disk",
+      date: "Sep 3",
+      source: "Lecture -3.pdf",
+      tags: ["Electric Dipoles","Electric Fields"],
+      html: [
+        '<p class="lede">The idealized dipole\'s torque and moment, then the on-axis field of a uniformly charged disk via ring integration.</p>',
+        '<p><strong>Idealized dipole:</strong> two equal-magnitude, opposite-sign point charges separated by distance d. Torque: τ = rFsinθ.</p>',
+        '<div class="eq"><div class="eq-line">τ₊ = (d/2)qEsinθ &nbsp;&nbsp; τ₋ = (d/2)qEsinθ</div><div class="eq-line">τnet = dqEsinθ</div></div>',
+        '<p>The <strong>dipole moment</strong> p⃗ points from − to +; τ⃗net = p⃗ × E⃗.</p>',
+
+        '<p><strong>Field of a uniformly charged disk, on-axis.</strong> Chop the disk into rings of radius r and thickness dr. Unrolled, a ring is a thin rectangle: dA = 2πr dr. Charge on the ring: dq = σ dA = σ·2πr dr.</p>',
+        '<div class="eq">dE⃗ = <span class="frac"><span class="num">k dq · z</span><span class="den">(z²+r²)<sup>3/2</sup></span></span> ẑ = <span class="frac"><span class="num">kσ·2πr dr·z</span><span class="den">(z²+r²)<sup>3/2</sup></span></span> ẑ</div>',
+        '<p>Substituting u = z²+r², du = 2r dr:</p>',
+        '<div class="eq">∫ <span class="frac"><span class="num">kσπ du·z</span><span class="den">u<sup>3/2</sup></span></span> ẑ = −2kσπz ẑ · u<sup>−1/2</sup> ⎮<sub>z²</sub><sup>z²+R²</sup></div>',
+        '<p class="muted-note">The final evaluation on the page is compressed to just "= 2πkσ (ẑ)" — that\'s the near-the-disk / infinite-sheet limit of the full result (E = 2πkσ[1 − z/√(z²+R²)]), and it\'s exactly the value the parallel-plate section builds on next.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-hw1",
+      class: "Physics 2",
+      kind: "Homework",
+      topic: "Coulomb's Law, Fields & Dipoles",
+      title: "Homework — Coulomb's Law Calculation",
+      subject: "A numeric plug-and-chug Coulomb's-law force calculation",
+      date: "Undated · green ink",
+      source: "Hw-1.pdf",
+      tags: ["Coulomb's Law"],
+      html: [
+        '<p class="lede">A single numeric Coulomb\'s-law setup.</p>',
+        '<div class="eq">F = k <span class="frac"><span class="num">|q₁q₂|</span><span class="den">r²</span></span> = 8.99×10⁹ <span class="frac"><span class="num">|(−14.5)(35.5)|</span><span class="den">(−1.695)²</span></span></div>',
+        '<p class="muted-note">The page stops right after setting this up — no units are written on the given values (charges and distance), and the final arithmetic isn\'t carried through, so it\'s left here rather than guessed at.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-integration-problems",
+      class: "Physics 2",
+      kind: "Homework",
+      topic: "Coulomb's Law, Fields & Dipoles",
+      title: "Integrating Fields Over Charge Distributions",
+      subject: "Two supplemental problems — a rectangular sheet and a nonuniform semicircular loop — with full worked solutions",
+      date: "Undated · supplemental problem set",
+      source: "1.-Electric-Field-Integrations-Problems.pdf + Electric Field Supplemental.pdf",
+      tags: ["Electric Fields","Charge Density","Integration"],
+      html: [
+        '<p class="lede">A printed supplemental problem set (no in-class Mastering Physics problems cover this integration technique), fully worked out by hand across two problems.</p>',
+
+        '<h3 class="date-head" style="margin-top:0;padding-top:0;border-top:none;">P1 — Field of a Uniform Rectangular Sheet</h3>',
+        '<p><strong>Given</strong> (from example 21.10 in the book): a charge Q distributed uniformly along the y-axis from y=+a to y=−a creates a field at point P, a distance x from the origin, of E⃗ = (1/4πε₀) · Q/(x√(x²+a²)) · x̂. <strong>Find</strong> an integral expression (not evaluated) for the field of a uniform solid rectangular sheet (height 2h, width w) at distance D from its right edge.</p>',
+        '<p>(a) Chop the sheet into vertical rods; each strip is a rod of length 2h, with differential element da.</p>',
+        '<p>(b) A rod at position s from the right edge sits a distance r = D + s from point P.</p>',
+        '<p>(c) Parameterize with s: s = 0 at the right edge, s = w at the left edge, so 0 ≤ s ≤ w, and r = D + s.</p>',
+        '<p>(d) Integration limits: s runs from 0 to w, i.e. ∫₀ʷ.</p>',
+        '<p>(e) The strip has height 2h and infinitesimal width ds, so dA = (2h)(ds).</p>',
+        '<p>(f) Total area A = (2h)w, charge density σ = Q/(2hw). Charge on one strip: dq = σ dA = <span class="frac"><span class="num">Q</span><span class="den">2hw</span></span>(2h ds) = <span class="frac"><span class="num">Q</span><span class="den">w</span></span> ds.</p>',
+        '<p>(g) Each rod is symmetric about the horizontal axis through P, so vertical components cancel — the field is entirely in the +x direction: dE⃗ = dEₓ î, dEᵧ = 0 for each rod.</p>',
+        '<p>Using the given rod formula with r = D+s and dq = (Q/w)ds:</p>',
+        '<div class="eq">dEₓ = <span class="frac"><span class="num">Q</span><span class="den">4πε₀w</span></span> <span class="frac"><span class="num">ds</span><span class="den">(D+s)√(D+s)²+h²</span></span></div>',
+        '<div class="eq">Eₓ = ∫₀ʷ dEₓ = <span class="frac"><span class="num">Q</span><span class="den">4πε₀w</span></span> ⎡⎣ ∫₀ʷ <span class="frac"><span class="num">ds</span><span class="den">(D+s)√(D+s)²+h²</span></span> ⎤⎦</div>',
+        '<p>Since Eᵧ = 0, the magnitude is |E⃗| = |Eₓ|, so this integral (left unevaluated, as the problem asks) is the answer.</p>',
+
+        '<h3 class="date-head">P2 — Field of a Nonuniform Semicircular Loop</h3>',
+        '<p><strong>Given:</strong> a semicircular loop of radius R with nonuniform linear charge density λ = λ₀√(1+cosφ), where φ is the angle shown in the diagram. <strong>Find</strong> the field at point P, a distance R below the center of the loop.</p>',
+        '<p>(a) Chop the semicircle into tiny pieces ds, each carrying charge dq = λds.</p>',
+        '<p>(b) With x = Rsinφ, y = Rcosφ: φ &gt; 0 puts the element on the right, φ &lt; 0 on the left, φ = 0 at the top; −π/2 ≤ φ ≤ π/2.</p>',
+        '<p>(c)–(d) φ is the parameterizing variable; integration limits run from −π/2 to π/2.</p>',
+        '<p>(e) ds = Rdφ (arc length for radius R, angle dφ).</p>',
+        '<p>(f) dq = λds = λ₀R√(1+cosφ) dφ.</p>',
+        '<p>(g) The charge element is positive, so the field at P points away from it; since P sits below the semicircle, dE⃗ points down and to the left — both dEₓ and dEᵧ are needed.</p>',
+
+        '<p><strong>2(a)</strong> Since cos is even, cos(−φ) = cos(φ), so λ(−φ) = λ(φ): the charge distribution is symmetric about the y-axis, so dEₓ(φ) + dEₓ(−φ) = 0 — Eₓ = 0 overall, and E⃗ = Eᵧĵ.</p>',
+        '<p><strong>2(b)</strong> Distance r from dq to P: using the law of cosines with center-to-charge = R, center-to-P = R, and angle between them = π−φ:</p>',
+        '<div class="eq"><div class="eq-line">r² = R² + R² − 2R²cos(π−φ) = 2R² + 2R²cosφ &nbsp;(since cos(π−φ) = −cosφ)</div><div class="eq-line">r = R√(2+2cosφ)</div></div>',
+        '<div class="eq">dE = k <span class="frac"><span class="num">dq</span><span class="den">r²</span></span> = <span class="frac"><span class="num">kλ₀</span><span class="den">2R</span></span> <span class="frac"><span class="num">dφ</span><span class="den">√(1+cosφ)</span></span></div>',
+        '<p><strong>2(c)</strong> Components — the vector from dq at (Rsinφ, Rcosφ) to P at (0,−R):</p>',
+        '<div class="eq"><div class="eq-line">r⃗<sub>P</sub> − r⃗<sub>q</sub> = ⟨−Rsinφ, −R−Rcosφ⟩ = −R⟨sinφ, 1+cosφ⟩</div><div class="eq-line">r̂ = ⟨−sinφ, −(1+cosφ)⟩ / √(2+2cosφ)</div></div>',
+        '<div class="eq"><div class="eq-line">dEₓ = dE · (−sinφ)/√(2+2cosφ)</div><div class="eq-line">dEᵧ = dE · −(1+cosφ)/√(2+2cosφ)</div></div>',
+        '<p>Since √(2+2cosφ) = √2·√(1+cosφ), and by symmetry Eₓ integrates to 0, simplify dEᵧ:</p>',
+        '<div class="eq">dEᵧ = <span class="frac"><span class="num">kλ₀</span><span class="den">2R</span></span> <span class="frac"><span class="num">dφ</span><span class="den">√(1+cosφ)</span></span> · <span class="frac"><span class="num">−(1+cosφ)</span><span class="den">√2·√(1+cosφ)</span></span> = − <span class="frac"><span class="num">kλ₀</span><span class="den">2√2 R</span></span> dφ</div>',
+        '<p><strong>2(d)</strong> Integrating from −π/2 to π/2:</p>',
+        '<div class="eq"><div class="eq-line">Eᵧ = − <span class="frac"><span class="num">kλ₀</span><span class="den">2√2 R</span></span> [φ]<sub>−π/2</sub><sup>π/2</sup> = − <span class="frac"><span class="num">kλ₀</span><span class="den">2√2 R</span></span> (π/2 − (−π/2))</div><div class="eq-line">Eᵧ = − <span class="frac"><span class="num">kλ₀π</span><span class="den">2√2 R</span></span></div></div>',
+        '<p><strong>2(e)–(f)</strong> Since Eₓ = 0:</p>',
+        '<div class="eq"><div class="eq-line">E = |Eᵧ| = <span class="frac"><span class="num">kλ₀π</span><span class="den">2√2 R</span></span></div><div class="eq-line">E⃗ = − <span class="frac"><span class="num">kλ₀π</span><span class="den">2√2 R</span></span> ĵ &nbsp;(points straight down, toward P — since Eᵧ &lt; 0)</div></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-flux",
+      class: "Physics 2",
+      kind: "Lecture",
+      topic: "Flux & Gauss's Law",
+      title: "Parallel Plates & Flux",
+      subject: "The field between charged plates, and the definition of electric flux",
+      date: "Sep 8",
+      source: "Lecture -3.pdf",
+      tags: ["Flux"],
+      html: [
+        '<p class="lede">The field between oppositely charged plates, then the definition of flux with a worked tilted-square example.</p>',
+        '<p>Between two oppositely charged plates, the fields from each plate are equal in magnitude and both point the same direction (into the gap), so they add:</p>',
+        '<div class="eq">Enet = <span class="frac"><span class="num">σ</span><span class="den">ε₀</span></span></div>',
+        '<p><strong>Flux.</strong> Φ depends on area, field magnitude, and the angle between the field and the direction the surface faces:</p>',
+        '<div class="eq">Φ = ∫dΦ = ∫E⃗·dA⃗ = ∫E⃗·|dA⃗|cosθ</div>',
+        '<p>dA⃗ is a vector normal to the surface, pointing outward, with magnitude equal to the area of a differential element. If E and θ are constant over the whole surface: Φ = |E⃗|·A·cosθ.</p>',
+        '<p><strong>Example:</strong> E⃗ = E₀(3î + 4ĵ) (so |E⃗| = 5E₀), flux through a square of side L facing the x-direction (dA⃗ = î|dA⃗|):</p>',
+        '<div class="eq"><div class="eq-line">Φ = ∫E₀(3î+4ĵ)·|dA⃗|î = ∫E₀·3|dA⃗| = 3E₀∫|dA⃗| = 3E₀L²</div></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-gauss-law",
+      class: "Physics 2",
+      kind: "Lecture",
+      topic: "Flux & Gauss's Law",
+      title: "Gauss's Law",
+      subject: "The statement of Gauss's law, and the symmetry argument for a point charge",
+      date: "Undated · directly after 9/8 in the notebook",
+      source: "Lecture -3.pdf",
+      tags: ["Gauss's Law","Flux"],
+      html: [
+        '<p class="lede">Gauss\'s law stated, and the symmetry argument that reduces the flux integral to Φ = E·A for a point charge.</p>',
+        '<div class="eq">Φnet = <span class="frac"><span class="num">q<sub>encl</sub></span><span class="den">ε₀</span></span> &nbsp;&nbsp; (true for any closed shape)</div>',
+        '<p>For a point charge at the center of a spherical surface, rotational symmetry means the field must be radial, and |E| at a given radius is constant — so Φ = ∮E⃗·dA⃗ with θ = 0 everywhere on the sphere, giving Φ = E·A.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-gauss-notes",
+      class: "Physics 2",
+      kind: "Reference",
+      topic: "Flux & Gauss's Law",
+      title: "Notes on Gauss's Law (Ch 22.3–22.4)",
+      subject: "Deriving the point-charge field from Gauss's law, and the general statement of the law",
+      date: "Undated · Ch 22.3–22.4 notes",
+      source: "Notes On Gauss’s Law.pdf",
+      tags: ["Gauss's Law","Electric Fields"],
+      html: [
+        '<p class="lede">Textbook notes deriving the field of a point charge from Gauss\'s law, ahead of the lecture\'s cylinder/conductor version.</p>',
+        '<p><strong>Point charge inside a spherical surface.</strong> Gauss\'s law states that the total electric flux through any closed surface is proportional to the total (net) electric charge inside the surface.</p>',
+        '<p>For a single positive charge q, field lines radiate out equally in all directions. Placing q at the center of a spherical surface of radius R:</p>',
+        '<div class="eq">|E⃗| = <span class="frac"><span class="num">1</span><span class="den">4πε₀</span></span> <span class="frac"><span class="num">q</span><span class="den">r²</span></span> (4πR²) = <span class="frac"><span class="num">q</span><span class="den">ε₀</span></span></div>',
+        '<p>Flux is independent of the sphere\'s radius R — it depends only on the charge enclosed.</p>',
+        '<div class="callout" style="border-left-color:var(--accent); background:var(--accent-soft);"><strong>Gauss\'s Law:</strong> ∮E⃗·dA⃗ = q<sub>encl</sub>/ε₀. Divide the shape into elements dA, compute the flux E·dA·cosφ for each, then sum the results by integrating.</div>',
+        '<p>q<sub>encl</sub> is always the <em>algebraic</em> sum of all positive and negative charges enclosed by the Gaussian surface, and E⃗ is always the total field at each point on the surface. Gauss\'s law holds for any distribution of charges and any closed surface.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-conductors-equilibrium",
+      class: "Physics 2",
+      kind: "Lecture",
+      topic: "Flux & Gauss's Law",
+      title: "Conductors in Electrostatic Equilibrium & Faraday Cages",
+      subject: "Applying Gauss's law to a charged conducting cylinder, and the cavity/Faraday-cage result",
+      date: "Sep 10",
+      source: "Lecture -3.pdf",
+      tags: ["Conductors & Insulators","Gauss's Law"],
+      html: [
+        '<p class="lede">Gauss\'s law applied to a charged conductor via a pillbox surface, then the Faraday-cage result for a cavity inside a conductor.</p>',
+        '<p>When there\'s no net motion of charge within a conductor, it\'s in <strong>electrostatic equilibrium</strong>, and the electric field is zero everywhere inside it.</p>',
+        '<p><strong>Applying Gauss\'s law to a charged conducting cylinder</strong> (Gaussian surface = a thin pillbox straddling the surface, with top outside and bottom inside the conductor):</p>',
+        '<div class="eq"><div class="eq-line">Φ<sub>bot</sub> = 0 &nbsp;(E = 0 at the bottom surface, inside the conductor)</div><div class="eq-line">Φ<sub>side</sub> = 0 &nbsp;(the field is vertical — it doesn\'t pass through the curved vertical side)</div></div>',
+        '<p>By symmetry, E is vertical and uniform on a horizontal plane:</p>',
+        '<div class="eq"><div class="eq-line">Φ<sub>top</sub> = ∫E(ŷ)·dA(ŷ) = E∫dA = E·A<sub>top</sub></div><div class="eq-line">Φnet = EπR²</div><div class="eq-line">q<sub>encl</sub> = σ·A = σπR²</div></div>',
+        '<div class="eq">EπR² = <span class="frac"><span class="num">σπR²</span><span class="den">ε₀</span></span> &nbsp;⟹&nbsp; E = <span class="frac"><span class="num">σ</span><span class="den">ε₀</span></span> = 4πkσ</div>',
+        '<p class="muted-note">That\'s twice the field of an isolated charged sheet (σ/2ε₀) — because a conductor arranges its charge so the field is exactly zero inside, which effectively doubles the field it pushes out.</p>',
+
+        '<p><strong>Cavities and Faraday cages.</strong></p>',
+        '<p class="muted-note">This page is mostly a diagram — a conductor with a hollow cavity inside it, and a separate isolated positive charge nearby — without accompanying explanation. The sketch is the standard setup for the Faraday-cage result: a cavity inside a charged conductor stays field-free.</p>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-flux-hw",
+      class: "Physics 2",
+      kind: "Homework",
+      topic: "Flux & Gauss's Law",
+      title: "Homework — Electric Flux Through a Sheet",
+      subject: "Computing flux through a tilted rectangular sheet in a uniform field",
+      date: "Undated",
+      source: "Flux Hw.pdf",
+      tags: ["Flux"],
+      html: [
+        '<p class="lede">A uniform-field flux calculation through a rectangular sheet tilted relative to the field.</p>',
+        '<p>E = 80.0 N/C, sheet 0.400 m × 0.600 m (A = 0.240 m²), field 20° from the plane of the sheet — so the angle between the field and the sheet\'s normal is 90° − 20° = 70°.</p>',
+        '<div class="eq"><div class="eq-line">Φ<sub>E</sub> = EAcosθ = (80.0)(0.240)cos(70°)</div><div class="eq-line">Φ<sub>E</sub> = 19.2(0.342) ≈ 6.57 N·m²/C</div></div>'
+      ].join("\n")
+    },
+
+    {
+      id: "p2-potential-intro",
+      class: "Physics 2",
+      kind: "Lecture",
+      topic: "Electric Potential",
+      title: "Electric Potential (intro)",
+      subject: "Potential as potential-energy-per-charge, via the gravitational analogy",
+      date: "Sep 15",
+      source: "Lecture -3.pdf",
+      tags: ["Electric Potential"],
+      html: [
+        '<p class="lede">The opening page on electric potential, built from the gravitational potential-energy analogy.</p>',
+        '<p>Starting from the gravitational analogy, in a uniform field E: U<sub>E</sub> = qEh, ΔU<sub>E</sub> = qE(Δh), F⃗ = qE⃗. <strong>Potential</strong> is the amount of potential energy at a location, per unit charge placed there.</p>',
+        '<div class="eq"><div class="eq-line">Electrical potential = EPE/q &nbsp;&nbsp; U<sub>e</sub> = qV</div><div class="eq-line">J/C = volts (V)</div></div>',
+        '<p>The amount of electric potential is a property of a <em>location</em>, not of any particular test charge placed there.</p>',
+        '<p class="muted-note">A short example follows — points A (near a negative charge) and B (near a positive charge) — giving VA = −2 J/C and VB = −1 J/C. The full geometry (exact charge magnitudes and distances) isn\'t fully legible on the page; just the potential relation V = U<sub>e</sub>/q and these two resulting values are clear.</p>'
+      ].join("\n")
+    },
+
+  ];
+
+  // ---- synthesize per-class Study Tools pages (Cheat Sheet + Needs Review) ----
+  // Pulls the boxed callouts (style="...accent...") into a cheat sheet, the
+  // plain callouts ("worth double-checking") and .muted-note gaps into a
+  // review queue — both auto-regenerate from whatever's in `notebooks` above,
+  // so a newly added entry's callouts show up here with no extra work.
+  (function buildStudyTools(){
+    var byClass = {};
+    notebooks.forEach(function(n){
+      (byClass[n.class] = byClass[n.class] || []).push(n);
+    });
+    var scratch2 = document.createElement('div');
+
+    function srcLink(item){
+      return '<div class="review-src"><a href="#'+item.id+'">'+item.title+' · '+item.date+'</a></div>' + item.html;
+    }
+    function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+
+    Object.keys(byClass).forEach(function(cls){
+      var reviewItems = [], gapItems = [], ruleItems = [];
+      byClass[cls].forEach(function(n){
+        scratch2.innerHTML = n.html;
+        Array.prototype.forEach.call(scratch2.querySelectorAll('.callout'), function(el){
+          var entry = { title: n.title, date: n.date, id: n.id, html: el.outerHTML };
+          if (el.hasAttribute('style')) ruleItems.push(entry); else reviewItems.push(entry);
+        });
+        Array.prototype.forEach.call(scratch2.querySelectorAll('.muted-note'), function(el){
+          gapItems.push({ title: n.title, date: n.date, id: n.id, html: el.outerHTML });
+        });
+      });
+
+      var cheatHtml = [
+        '<p class="lede">Boxed rules and theorems called out across ' + cls + '\'s notebooks, gathered in one place for quick review — not a substitute for the worked examples they came from.</p>'
+      ];
+      if (ruleItems.length){
+        ruleItems.forEach(function(it){ cheatHtml.push(srcLink(it)); });
+      } else {
+        cheatHtml.push('<p class="muted-note">No boxed rules have been called out in ' + cls + ' yet — check back as more lectures get transcribed.</p>');
+      }
+      notebooks.push({
+        id: "cheatsheet-" + slug(cls),
+        class: cls,
+        kind: "Cheat Sheet",
+        topic: "Study Tools",
+        title: "Cheat Sheet — " + cls,
+        subject: ruleItems.length + " boxed rule" + (ruleItems.length === 1 ? "" : "s") + " pulled from this class's notebooks",
+        date: "Auto-generated",
+        source: "Compiled from every " + cls + " notebook",
+        tags: [],
+        html: cheatHtml.join("\n")
+      });
+
+      var reviewHtml = [
+        '<p class="lede">Every arithmetic or transcription slip flagged while transcribing ' + cls + ', plus every page where the notes cut off before finishing — pulled from all ' + byClass[cls].length + ' notebooks in this class.</p>',
+        '<h3 class="date-head" style="margin-top:0;padding-top:0;border-top:none;">Flagged for double-checking (' + reviewItems.length + ')</h3>'
+      ];
+      if (reviewItems.length){
+        reviewItems.forEach(function(it){ reviewHtml.push(srcLink(it)); });
+      } else {
+        reviewHtml.push('<p class="muted-note">Nothing flagged in ' + cls + ' yet.</p>');
+      }
+      reviewHtml.push('<h3 class="date-head">Gaps in the notes (' + gapItems.length + ')</h3>');
+      if (gapItems.length){
+        gapItems.forEach(function(it){ reviewHtml.push(srcLink(it)); });
+      } else {
+        reviewHtml.push('<p class="muted-note">No gaps noted in ' + cls + ' yet.</p>');
+      }
+      notebooks.push({
+        id: "review-" + slug(cls),
+        class: cls,
+        kind: "Review Queue",
+        topic: "Study Tools",
+        title: "Needs Review — " + cls,
+        subject: reviewItems.length + " flagged check" + (reviewItems.length === 1 ? "" : "s") + " · " + gapItems.length + " unfinished page" + (gapItems.length === 1 ? "" : "s"),
+        date: "Auto-generated",
+        source: "Compiled from every " + cls + " notebook",
+        tags: [],
+        html: reviewHtml.join("\n")
+      });
+    });
+  })();
+
+  // ---- derive plain-text search index per notebook (title+subject+topic+tags+body text) ----
+  var scratch = document.createElement('div');
+  notebooks.forEach(function(n){
+    scratch.innerHTML = n.html;
+    var bodyText = scratch.textContent || "";
+    n.search = (n.title + " " + n.subject + " " + n.topic + " " + n.tags.join(" ") + " " + bodyText).toLowerCase();
+  });
+
+  var classes = [];
+  notebooks.forEach(function(n){
+    if (classes.indexOf(n.class) === -1) classes.push(n.class);
+  });
+
+  var classTopics = {};
+  notebooks.forEach(function(n){
+    if (!classTopics[n.class]) classTopics[n.class] = [];
+    if (classTopics[n.class].indexOf(n.topic) === -1) classTopics[n.class].push(n.topic);
+  });
+
+  // ---- per-class dashboard stats (kind counts, flagged callouts, gaps, not-yet-transcribed) ----
+  function clsSlug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+  // "Transcribed" = the user's own notebooks (Lecture/Reference/Homework/etc.) — excludes the
+  // auto-generated Cheat Sheet/Review Queue pages AND outside Resource entries, so notebook
+  // counts always reflect what's actually been transcribed from class, not borrowed material.
+  function isTranscribed(n){ return n.kind !== "Cheat Sheet" && n.kind !== "Review Queue" && n.kind !== "Resource"; }
+  var classSummary = {};
+  (function(){
+    var scratch3 = document.createElement('div');
+    classes.forEach(function(cls){
+      var real = notebooks.filter(function(n){ return n.class === cls && isTranscribed(n); });
+      var byKind = {};
+      real.forEach(function(n){ byKind[n.kind] = (byKind[n.kind]||0) + 1; });
+      var notYet = real.filter(function(n){ return n.topic === "Not Yet Transcribed"; }).length;
+      var resources = notebooks.filter(function(n){ return n.class === cls && n.kind === "Resource"; }).length;
+      var flagged = 0, gaps = 0;
+      real.forEach(function(n){
+        scratch3.innerHTML = n.html;
+        Array.prototype.forEach.call(scratch3.querySelectorAll('.callout'), function(el){
+          if (!el.hasAttribute('style')) flagged++;
+        });
+        gaps += scratch3.querySelectorAll('.muted-note').length;
+      });
+      var topics = (classTopics[cls] || []).filter(function(t){ return t !== "Study Tools" && t !== "Not Yet Transcribed"; });
+      classSummary[cls] = { total: real.length, byKind: byKind, notYet: notYet, resources: resources, flagged: flagged, gaps: gaps, topics: topics };
+    });
+  })();
+
+  function initialId(){
+    var fromHash = decodeURIComponent((window.location.hash || "").replace(/^#/, ""));
+    if (fromHash === "home") return "home";
+    if (fromHash && notebooks.some(function(n){ return n.id === fromHash; })) return fromHash;
+    return "home";
+  }
+
+  var state = { query: "", activeTags: [], activeClass: "All", currentId: initialId() };
+
+  var listEl = document.getElementById('lecture-list');
+  var tagRowEl = document.getElementById('tag-row');
+  var classTabsEl = document.getElementById('class-tabs');
+  var searchInput = document.getElementById('search-input');
+  var footerEl = document.getElementById('sidebar-footer');
+  var navEl = document.getElementById('topic-nav');
+  var contentHeaderEl = document.querySelector('.content-header');
+  var sidebarEl = document.querySelector('.sidebar');
+  var drawerOverlayEl = document.getElementById('drawer-overlay');
+  var drawerToggleEl = document.getElementById('drawer-toggle');
+
+  function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  function openDrawer(){
+    sidebarEl.classList.add('open');
+    drawerOverlayEl.hidden = false;
+    drawerToggleEl.setAttribute('aria-expanded', 'true');
+  }
+  function closeDrawer(){
+    sidebarEl.classList.remove('open');
+    drawerOverlayEl.hidden = true;
+    drawerToggleEl.setAttribute('aria-expanded', 'false');
+  }
+  drawerToggleEl.addEventListener('click', function(){
+    sidebarEl.classList.contains('open') ? closeDrawer() : openDrawer();
+  });
+  drawerOverlayEl.addEventListener('click', closeDrawer);
+
+  function inActiveClass(n){
+    return state.activeClass === "All" || n.class === state.activeClass;
+  }
+
+  function matches(n){
+    if (!inActiveClass(n)) return false;
+    if (state.query && n.search.indexOf(state.query) === -1) return false;
+    for (var i=0;i<state.activeTags.length;i++){
+      if (n.tags.indexOf(state.activeTags[i]) === -1) return false;
+    }
+    return true;
+  }
+
+  function tagsForActiveClass(){
+    var tags = [];
+    notebooks.forEach(function(n){
+      if (!inActiveClass(n)) return;
+      n.tags.forEach(function(t){ if (tags.indexOf(t) === -1) tags.push(t); });
+    });
+    return tags;
+  }
+
+  function renderClassTabs(){
+    classTabsEl.innerHTML = "";
+    var all = ["All"].concat(classes);
+    all.forEach(function(c){
+      var tab = document.createElement('button');
+      tab.type = "button";
+      tab.className = "class-tab" + (state.activeClass === c ? " active" : "");
+      tab.textContent = c === "All" ? "All Classes" : c;
+      tab.addEventListener('click', function(){
+        if (state.activeClass === c) return;
+        state.activeClass = c;
+        state.activeTags = state.activeTags.filter(function(t){ return tagsForActiveClass().indexOf(t) > -1; });
+        refresh();
+      });
+      classTabsEl.appendChild(tab);
+    });
+  }
+
+  function renderTags(){
+    tagRowEl.innerHTML = "";
+    tagsForActiveClass().forEach(function(t){
+      var chip = document.createElement('button');
+      chip.type = "button";
+      chip.className = "tag-chip" + (state.activeTags.indexOf(t) > -1 ? " active" : "");
+      chip.textContent = t;
+      chip.addEventListener('click', function(){
+        var idx = state.activeTags.indexOf(t);
+        if (idx > -1) state.activeTags.splice(idx,1); else state.activeTags.push(t);
+        refresh();
+      });
+      tagRowEl.appendChild(chip);
+    });
+  }
+
+  function makeListItem(n){
+    var li = document.createElement('li');
+    var btn = document.createElement('button');
+    btn.type = "button";
+    btn.className = "lecture-item" + (n.id === state.currentId ? " active" : "");
+    var classBadge = state.activeClass === "All" ? '<span class="li-class">'+n.class+'</span>' : '';
+    btn.innerHTML =
+      '<div class="li-top"><span class="li-title">'+n.title+'</span><span class="li-date">'+n.date+'</span></div>'+
+      '<div class="li-subject">'+n.subject+'</div>'+
+      '<div class="li-kind">'+classBadge+'<span data-kind="'+n.kind+'">'+(n.kind === "Resource" ? "↗ " : "")+n.kind+'</span></div>';
+    btn.addEventListener('click', function(){ goTo(n.id); });
+    li.appendChild(btn);
+    return li;
+  }
+
+  function renderTopicGroups(list, cls){
+    (classTopics[cls] || []).forEach(function(t){
+      var inTopic = list.filter(function(n){ return n.topic === t; });
+      if (inTopic.length === 0) return;
+      var head = document.createElement('li');
+      head.className = "list-topic-head";
+      head.textContent = t;
+      listEl.appendChild(head);
+      inTopic.forEach(function(n){ listEl.appendChild(makeListItem(n)); });
+    });
+  }
+
+  function renderList(){
+    listEl.innerHTML = "";
+    var visible = notebooks.filter(matches);
+    if (visible.length === 0){
+      var li = document.createElement('li');
+      li.className = "empty-filter";
+      li.textContent = "No notebooks match that search.";
+      listEl.appendChild(li);
+      return;
+    }
+    if (state.currentId !== "home" && visible.indexOf(notebooks.find(function(n){return n.id===state.currentId;})) === -1){
+      state.currentId = visible[0].id;
+    }
+    if (state.activeClass === "All"){
+      classes.forEach(function(c){
+        var inClass = visible.filter(function(n){ return n.class === c; });
+        if (inClass.length === 0) return;
+        var head = document.createElement('li');
+        head.className = "list-group-head";
+        head.textContent = c;
+        listEl.appendChild(head);
+        renderTopicGroups(inClass, c);
+      });
+    } else {
+      renderTopicGroups(visible, state.activeClass);
+    }
+  }
+
+  function highlight(container, query){
+    if (!query) return;
+    var re = new RegExp('('+escRe(query)+')', 'ig');
+    var walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+    var nodes = [];
+    var node;
+    while ((node = walker.nextNode())) nodes.push(node);
+    nodes.forEach(function(n){
+      if (!re.test(n.nodeValue)) return;
+      re.lastIndex = 0;
+      var frag = document.createDocumentFragment();
+      var parts = n.nodeValue.split(re);
+      parts.forEach(function(part, i){
+        if (i % 2 === 1){
+          var mark = document.createElement('mark');
+          mark.className = 'hit';
+          mark.textContent = part;
+          frag.appendChild(mark);
+        } else if (part) {
+          frag.appendChild(document.createTextNode(part));
+        }
+      });
+      n.parentNode.replaceChild(frag, n);
+    });
+  }
+
+  function renderTopicNav(n){
+    var siblings = notebooks.filter(function(x){ return x.class === n.class && x.topic === n.topic; });
+    var idx = siblings.indexOf(n);
+    var prev = idx > 0 ? siblings[idx-1] : null;
+    var next = idx < siblings.length-1 ? siblings[idx+1] : null;
+    if (!prev && !next){ navEl.hidden = true; navEl.innerHTML = ""; return; }
+    navEl.hidden = false;
+    navEl.innerHTML =
+      (prev ? '<button type="button" class="nav-btn nav-prev" data-id="'+prev.id+'">← '+prev.title+'</button>' : '<span></span>') +
+      (next ? '<button type="button" class="nav-btn nav-next" data-id="'+next.id+'">'+next.title+' →</button>' : '<span></span>');
+    Array.prototype.forEach.call(navEl.querySelectorAll('.nav-btn'), function(btn){
+      btn.addEventListener('click', function(){ goTo(btn.getAttribute('data-id')); });
+    });
+  }
+
+  function renderHomeCard(cls){
+    var s = classSummary[cls];
+    var kindParts = Object.keys(s.byKind).map(function(k){
+      return s.byKind[k] + ' ' + (s.byKind[k] === 1 ? k : k + 's');
+    }).join(' · ');
+    var topicChips = s.topics.slice(0, 5).map(function(t){ return '<span class="tag">'+t+'</span>'; }).join('');
+    var flags = '';
+    if (s.notYet) flags += '<p class="cc-flag cc-flag-warn">' + s.notYet + ' not yet transcribed</p>';
+    if (s.flagged || s.gaps) flags += '<p class="cc-flag">' + s.flagged + ' flagged for double-checking · ' + s.gaps + ' unfinished page' + (s.gaps === 1 ? '' : 's') + '</p>';
+    if (s.resources) flags += '<p class="cc-flag cc-flag-resource">↗ ' + s.resources + ' outside resource' + (s.resources === 1 ? '' : 's') + '</p>';
+    return '' +
+      '<article class="class-card">' +
+        '<div class="cc-head"><h3>'+cls+'</h3><span class="cc-count">'+s.total+'</span></div>' +
+        '<p class="cc-kinds">'+kindParts+'</p>' +
+        '<div class="cc-tags">'+topicChips+'</div>' +
+        flags +
+        '<div class="cc-actions">' +
+          '<button type="button" class="cc-open" data-open="'+cls+'">Open →</button>' +
+          '<button type="button" class="cc-link" data-goto="cheatsheet-'+clsSlug(cls)+'">Cheat sheet</button>' +
+          '<button type="button" class="cc-link" data-goto="review-'+clsSlug(cls)+'">Needs review</button>' +
+        '</div>' +
+      '</article>';
+  }
+
+  function renderHome(){
+    contentHeaderEl.hidden = true;
+    navEl.hidden = true;
+    navEl.innerHTML = "";
+    var totalReal = notebooks.filter(isTranscribed).length;
+    var totalFlagged = 0, totalNotYet = 0, totalResources = 0;
+    classes.forEach(function(c){ totalFlagged += classSummary[c].flagged; totalNotYet += classSummary[c].notYet; totalResources += classSummary[c].resources; });
+    var lede = totalReal + " notebooks across " + classes.length + " classes";
+    if (totalResources) lede += " · " + totalResources + " outside resource" + (totalResources === 1 ? "" : "s");
+    if (totalFlagged) lede += " · " + totalFlagged + " flagged for double-checking";
+    if (totalNotYet) lede += " · " + totalNotYet + " not yet transcribed";
+    var body = document.getElementById('content-body');
+    body.innerHTML =
+      '<div class="home-view">' +
+        '<div class="home-hero">' +
+          '<p class="ch-kind">Dashboard</p>' +
+          '<h2 class="ch-title">All Classes, One Place</h2>' +
+          '<p class="ch-lede">'+lede+'.</p>' +
+        '</div>' +
+        '<div class="class-grid">' + classes.map(renderHomeCard).join('') + '</div>' +
+      '</div>';
+    Array.prototype.forEach.call(body.querySelectorAll('[data-open]'), function(btn){
+      btn.addEventListener('click', function(){
+        state.activeClass = btn.getAttribute('data-open');
+        var first = notebooks.find(function(n){ return n.class === state.activeClass && isTranscribed(n); });
+        goTo(first ? first.id : "home");
+      });
+    });
+    Array.prototype.forEach.call(body.querySelectorAll('[data-goto]'), function(btn){
+      btn.addEventListener('click', function(){ goTo(btn.getAttribute('data-goto')); });
+    });
+  }
+
+  function renderContent(){
+    if (state.currentId === "home"){ renderHome(); return; }
+    contentHeaderEl.hidden = false;
+    var n = notebooks.find(function(x){ return x.id === state.currentId; });
+    if (!n) return;
+    var chKindEl = document.getElementById('ch-kind');
+    chKindEl.textContent = (n.kind === "Resource" ? "↗ " : "") + n.kind;
+    chKindEl.setAttribute('data-kind', n.kind);
+    document.getElementById('ch-title').textContent = n.title;
+    document.getElementById('ch-class').textContent = n.class;
+    document.getElementById('ch-topic').textContent = n.topic;
+    document.getElementById('ch-date').textContent = n.date;
+    document.getElementById('ch-source').textContent = "Source: " + n.source;
+    document.getElementById('ch-tags').innerHTML = n.tags.map(function(t){ return '<span class="tag">'+t+'</span>'; }).join("");
+    var body = document.getElementById('content-body');
+    body.innerHTML = n.html;
+    if (state.query) highlight(body, state.query);
+    renderTopicNav(n);
+  }
+
+  function refresh(){
+    renderClassTabs();
+    renderTags();
+    renderList();
+    renderContent();
+  }
+
+  function selectId(id){
+    state.currentId = id;
+    refresh();
+    closeDrawer();
+    document.querySelector('.content').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function goTo(id){
+    if (window.location.hash.replace(/^#/, "") === id){ selectId(id); return; }
+    window.location.hash = id;
+  }
+
+  function goHome(){
+    state.activeClass = "All";
+    state.activeTags = [];
+    state.query = "";
+    searchInput.value = "";
+    goTo("home");
+  }
+
+  window.addEventListener('hashchange', function(){
+    var id = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+    if (id === "" || id === "home"){ selectId("home"); return; }
+    if (notebooks.some(function(n){ return n.id === id; })) selectId(id);
+  });
+
+  searchInput.addEventListener('input', function(){
+    state.query = searchInput.value.trim().toLowerCase();
+    refresh();
+  });
+
+  document.getElementById('brand-home').addEventListener('click', goHome);
+  document.getElementById('topbar-home').addEventListener('click', goHome);
+
+  // ---- keyboard shortcuts: / to search, j/k to browse the visible list, Esc to back out ----
+  document.addEventListener('keydown', function(e){
+    var tag = (e.target && e.target.tagName) || "";
+    var typing = tag === "INPUT" || tag === "TEXTAREA" || (e.target && e.target.isContentEditable);
+
+    if (e.key === "/" && !typing){
+      e.preventDefault();
+      if (window.innerWidth <= 860) openDrawer();
+      searchInput.focus();
+      return;
+    }
+    if (e.key === "Escape"){
+      if (document.activeElement === searchInput && state.query){
+        searchInput.value = "";
+        state.query = "";
+        refresh();
+        searchInput.blur();
+        return;
+      }
+      if (sidebarEl.classList.contains('open')){ closeDrawer(); return; }
+      return;
+    }
+    if (typing) return;
+    if (e.key === "j" || e.key === "k"){
+      var items = notebooks.filter(matches);
+      if (!items.length) return;
+      var idx = items.findIndex(function(n){ return n.id === state.currentId; });
+      if (e.key === "j") idx = idx < items.length - 1 ? idx + 1 : items.length - 1;
+      else idx = idx > 0 ? idx - 1 : 0;
+      e.preventDefault();
+      goTo(items[idx].id);
+    }
+  });
+
+  // ---- theme toggle button + keyboard hints, built into the sidebar footer ----
+  var THEME_MODES = ["auto", "light", "dark"];
+  var THEME_LABELS = { auto: "Auto", light: "Light", dark: "Dark" };
+  var THEME_ICONS = { auto: "◐", light: "☀", dark: "☾" };
+  var realCount = notebooks.filter(isTranscribed).length;
+  var resourceCount = notebooks.filter(function(n){ return n.kind === "Resource"; }).length;
+  footerEl.innerHTML =
+    '<div class="footer-stats">' + realCount + ' notebooks across ' + classes.length + ' classes' + (resourceCount ? ' · ' + resourceCount + ' outside resources' : '') + ' · updated Sep 16, 2026</div>' +
+    '<div class="footer-controls">' +
+      '<button type="button" id="theme-toggle" class="theme-toggle" aria-label="Theme: ' + THEME_LABELS[themeMode] + '. Click to change.">' + THEME_ICONS[themeMode] + ' ' + THEME_LABELS[themeMode] + '</button>' +
+      '<span class="kbd-hints"><kbd>/</kbd> search <kbd>j</kbd><kbd>k</kbd> browse</span>' +
+    '</div>';
+  var themeBtn = document.getElementById('theme-toggle');
+  themeBtn.addEventListener('click', function(){
+    var idx = THEME_MODES.indexOf(themeMode);
+    themeMode = THEME_MODES[(idx + 1) % THEME_MODES.length];
+    applyTheme(themeMode);
+    try{ localStorage.setItem(THEME_KEY, themeMode); } catch(e){}
+    themeBtn.innerHTML = THEME_ICONS[themeMode] + ' ' + THEME_LABELS[themeMode];
+    themeBtn.setAttribute('aria-label', 'Theme: ' + THEME_LABELS[themeMode] + '. Click to change.');
+  });
+
+  refresh();
+
+})();
+</script>
+</body>
+</html>
